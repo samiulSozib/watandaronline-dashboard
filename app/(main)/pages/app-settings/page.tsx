@@ -671,7 +671,7 @@ const AppSettingsPage = () => {
                                 </label>
                                 <InputNumber
                                     id="min_topup"
-                                    value={settings.extra_settings.min_topup_amount}
+                                    value={settings?.extra_settings?.min_topup_amount}
                                     onValueChange={(e) => setSettings({
                                         ...settings,
                                         extra_settings: { ...settings.extra_settings, min_topup_amount: e.value || 0 }
@@ -687,7 +687,7 @@ const AppSettingsPage = () => {
                                 </label>
                                 <InputNumber
                                     id="max_topup"
-                                    value={settings.extra_settings.max_topup_amount}
+                                    value={settings?.extra_settings?.max_topup_amount}
                                     onValueChange={(e) => setSettings({
                                         ...settings,
                                         extra_settings: { ...settings.extra_settings, max_topup_amount: e.value || 0 }
