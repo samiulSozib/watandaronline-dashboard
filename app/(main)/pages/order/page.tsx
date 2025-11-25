@@ -68,52 +68,37 @@ const OrderPage = () => {
         filter_service_category_type: null as string | null,
         filter_company_id: null as number | null,
         filter_service_id: null as number | null,
-        filter_startdate: null as string | null,
-        filter_enddate: null as string | null
+        from_date: null as string | null,
+        to_date: null as string | null
     });
 
     const [activeFilters, setActiveFilters] = useState({});
 
-    useEffect(() => {
-        // Map URL status parameter to filter value
-        let statusFilterValue = null;
+// --- Sync URL Status -> activeFilters ---
+useEffect(() => {
+    if (!statusParam) return;
 
-        if (statusParam) {
-            switch (statusParam) {
-                case 'pending':
-                    statusFilterValue = 0; // Assuming 0 is the value for pending status
-                    break;
-                case 'confirmed':
-                    statusFilterValue = 1; // Assuming 1 is the value for successful status
-                    break;
-                case 'rejected':
-                    statusFilterValue = 2; // Assuming 2 is the value for rejected status
-                    break;
-                default:
-                    statusFilterValue = null;
-            }
+    let statusFilterValue:any = null;
 
-            if (statusFilterValue !== null) {
-                setActiveFilters({
-                    ...activeFilters,
-                    filter_status: statusFilterValue
-                });
-            }
-        } else {
-            // If no status param, fetch all orders without status filter
-            dispatch(_fetchOrders(1, searchTag));
-        }
-    }, [dispatch, statusParam, searchTag]);
+    switch (statusParam) {
+        case 'pending': statusFilterValue = 0; break;
+        case 'confirmed': statusFilterValue = 1; break;
+        case 'rejected': statusFilterValue = 2; break;
+    }
 
-    // useEffect(() => {
-    //     dispatch(_fetchOrders(1, searchTag)); // No filters initially
-    // }, [dispatch, searchTag]);
+    // Merge with existing filters
+    setActiveFilters(prev => ({
+        ...prev,
+        filter_status: statusFilterValue
+    }));
+}, [statusParam]);
 
-    useEffect(() => {
-        if (Object.keys(activeFilters).length > 0) {
-            dispatch(_fetchOrders(1, searchTag, activeFilters));
-        }
-    }, [dispatch, activeFilters, searchTag]);
+
+// --- Fetch Orders Whenever Filters OR SearchTag Changes ---
+useEffect(() => {
+    dispatch(_fetchOrders(1, searchTag, activeFilters));
+}, [activeFilters, searchTag]);
+
 
     useEffect(() => {
         dispatch(_fetchCompanies());
@@ -216,9 +201,16 @@ const OrderPage = () => {
         return (
             <React.Fragment>
                 <div className="-m-1 my-2 flex flex-wrap gap-1 w-full">
-                    <Button className="flex-1  h-10" label={t('REFRESH')} icon={`pi pi-refresh ${refreshing ? 'pi-spin' : ''}`} severity="secondary" onClick={handleRefresh} disabled={refreshing} />
-                    <div className="flex-1  h-10" ref={filterRef} style={{ position: 'relative' }}>
-                        <Button className="p-button-info w-full" label={t('ORDER.FILTER.FILTER')} icon="pi pi-filter" onClick={() => setFilterDialogVisible(!filterDialogVisible)} />
+                    <Button
+                        className="h-10"
+                        style={{ flex: '1 1 0px', minWidth: '120px', gap: '8px' }}
+                        label={t('REFRESH')}
+                        icon={`pi pi-refresh ${refreshing ? 'pi-spin' : ''}`}
+                        severity="secondary"
+                        onClick={handleRefresh}
+                        disabled={refreshing}
+                    />                    <div className="flex-shrink-0 h-10 min-w-0" ref={filterRef} style={{ position: 'relative' }}>
+                        <Button className="p-button-info w-full" label={t('ORDER.FILTER.FILTER')} icon="pi pi-filter" style={{ gap: '8px' }} onClick={() => setFilterDialogVisible(!filterDialogVisible)} />
                         {filterDialogVisible && (
                             <div
                                 className="p-card p-fluid"
@@ -237,7 +229,7 @@ const OrderPage = () => {
                                     <div className="grid">
                                         {/* Status Filter */}
                                         <div className="col-12">
-                                            <label htmlFor="statusFilter" style={{ fontSize: '0.875rem' }}>
+                                            <label htmlFor="statusFilter" style={{ fontSize: '0.8rem' }}>
                                                 {t('ORDER.FILTER.STATUS')}
                                             </label>
                                             <Dropdown
@@ -256,7 +248,7 @@ const OrderPage = () => {
 
                                         {/* Bundle Type Filter */}
                                         <div className="col-12">
-                                            <label htmlFor="bundleTypeFilter" style={{ fontSize: '0.875rem' }}>
+                                            <label htmlFor="bundleTypeFilter" style={{ fontSize: '0.8rem' }}>
                                                 {t('ORDER.FILTER.BUNDLE_TYPE')}
                                             </label>
                                             <Dropdown
@@ -274,7 +266,7 @@ const OrderPage = () => {
 
                                         {/* Company Filter */}
                                         <div className="col-12">
-                                            <label htmlFor="companyFilter" style={{ fontSize: '0.875rem' }}>
+                                            <label htmlFor="companyFilter" style={{ fontSize: '0.8rem' }}>
                                                 {t('ORDER.FILTER.COMPANY')}
                                             </label>
                                             <Dropdown
@@ -291,7 +283,7 @@ const OrderPage = () => {
 
                                         {/* Service Filter */}
                                         <div className="col-12">
-                                            <label htmlFor="serviceFilter" style={{ fontSize: '0.875rem' }}>
+                                            <label htmlFor="serviceFilter" style={{ fontSize: '0.8rem' }}>
                                                 {t('ORDER.FILTER.SERVICE')}
                                             </label>
                                             <Dropdown
@@ -323,17 +315,17 @@ const OrderPage = () => {
 
                                         {/* Date Range Filters */}
                                         <div className="col-12">
-                                            <label htmlFor="startDateFilter" style={{ fontSize: '0.875rem' }}>
+                                            <label htmlFor="startDateFilter" style={{ fontSize: '0.8rem' }}>
                                                 {t('ORDER.FILTER.START_DATE')}
                                             </label>
-                                            <InputText type="date" id="startDateFilter" value={filters.filter_startdate || ''} onChange={(e) => setFilters({ ...filters, filter_startdate: e.target.value })} style={{ width: '100%' }} />
+                                            <InputText type="date" id="startDateFilter" value={filters.from_date || ''} onChange={(e) => setFilters({ ...filters, from_date: e.target.value })} style={{ width: '100%' }} />
                                         </div>
 
                                         <div className="col-12">
-                                            <label htmlFor="endDateFilter" style={{ fontSize: '0.875rem' }}>
+                                            <label htmlFor="endDateFilter" style={{ fontSize: '0.8rem' }}>
                                                 {t('ORDER.FILTER.END_DATE')}
                                             </label>
-                                            <InputText type="date" id="endDateFilter" value={filters.filter_enddate || ''} onChange={(e) => setFilters({ ...filters, filter_enddate: e.target.value })} style={{ width: '100%' }} />
+                                            <InputText type="date" id="endDateFilter" value={filters.to_date || ''} onChange={(e) => setFilters({ ...filters, to_date: e.target.value })} style={{ width: '100%' }} />
                                         </div>
 
                                         {/* Action Buttons */}
@@ -348,8 +340,8 @@ const OrderPage = () => {
                                                         filter_service_category_type: null,
                                                         filter_service_id: null,
                                                         filter_company_id: null,
-                                                        filter_startdate: null,
-                                                        filter_enddate: null
+                                                        from_date: null,
+                                                        to_date: null
                                                     });
                                                 }}
                                             />
@@ -373,7 +365,7 @@ const OrderPage = () => {
                         )}
                     </div>
 
-                    <Button className="flex-1  h-10" label={t('EXPORT.EXPORT')} icon={`pi pi-file-excel`} severity="success" onClick={exportToExcel} />
+                    <Button className="flex-1  h-10" label={t('EXPORT.EXPORT')} style={{ gap: '8px' }} icon={`pi pi-file-excel`} severity="success" onClick={exportToExcel} />
                 </div>
             </React.Fragment>
         );
@@ -616,7 +608,7 @@ const OrderPage = () => {
 
         let items: any[] = [];
 
-        if (status === 0 || (rowData.transaction_id === null && status === 1)) {
+        if (status == 0 || (rowData.transaction_id === null && status == 1)) {
             // Pending
             items = [
                 {
@@ -635,17 +627,36 @@ const OrderPage = () => {
                     command: () => confirmChangeStatus(rowData, 2)
                 }
             ];
-        } else if (status === 2) {
+        } else if (rowData.transaction_id !== null && status == 1) {
+            items = [
+                {
+                    label: t('ORDER.STATUS.UNDER_PROCESS'),
+                    icon: 'pi pi-spinner',
+                    command: () => confirmChangeStatus(rowData, 3)
+                },
+                {
+                    label: t('ORDER.STATUS.REJECTED'),
+                    icon: 'pi pi-times',
+                    command: () => confirmChangeStatus(rowData, 2)
+                }
+            ]
+        }
+        else if (status === 2) {
             // Rejected
             items = [
                 {
                     label: t('ORDER.STATUS.CONFIRMED'),
                     icon: 'pi pi-check',
                     command: () => confirmChangeStatus(rowData, 1)
-                }
+                },
+                {
+                    label: t('ORDER.STATUS.UNDER_PROCESS'),
+                    icon: 'pi pi-spinner',
+                    command: () => confirmChangeStatus(rowData, 3)
+                },
             ];
         }
-        else if (status === 3) {
+        else if (status == 3) {
             items = [
                 {
                     label: t('ORDER.STATUS.CONFIRMED'),
@@ -815,24 +826,25 @@ const OrderPage = () => {
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} body={copyButtonBodyTemplate} headerStyle={{ width: '5rem' }}></Column>
 
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.RESELLERNAME')} body={resellerNameBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.RESELLERNAME')} body={resellerNameBodyTemplate}></Column>
 
                         <Column
+                            headerStyle={{ whiteSpace: 'nowrap' }}
                             style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }}
                             field="rechargeble_account"
                             header={t('ORDER.TABLE.COLUMN.RECHARGEABLEACCOUNT')}
                             body={rechargeableAccountBodyTemplate}
                         ></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="bundle.id" header={t('ORDER.TABLE.COLUMN.BUNDLEID')} body={bundleIdBodyTemplate}></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.PAYABLEAMOUNT')} body={payableAmountBodyTemplate}></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.BUNDLETITLE')} body={bundleTitleBodyTemplate}></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.REJECTREASON')} body={rejectedReasonBodyTemplate}></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.COMPANYNAME')} body={companyNameBodyTemplate}></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.CATEGORYNAME')} body={categoryNameNameBodyTemplate}></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.ORDEREDDATE')} body={createdAtBodyTemplate}></Column>
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('PERFORMED_BY')} body={performedByBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="bundle.id" header={t('ORDER.TABLE.COLUMN.BUNDLEID')} body={bundleIdBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.PAYABLEAMOUNT')} body={payableAmountBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.BUNDLETITLE')} body={bundleTitleBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.REJECTREASON')} body={rejectedReasonBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.COMPANYNAME')} body={companyNameBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.CATEGORYNAME')} body={categoryNameNameBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('ORDER.TABLE.COLUMN.ORDEREDDATE')} body={createdAtBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="" header={t('PERFORMED_BY')} body={performedByBodyTemplate}></Column>
 
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="status" header={t('ORDER.TABLE.COLUMN.STATUS')} body={statusBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="status" header={t('ORDER.TABLE.COLUMN.STATUS')} body={statusBodyTemplate}></Column>
                     </DataTable>
                     <Paginator
                         first={(pagination?.page - 1) * pagination?.items_per_page}
@@ -840,9 +852,26 @@ const OrderPage = () => {
                         totalRecords={pagination?.total}
                         onPageChange={(e) => onPageChange(e)}
                         template={
-                            isRTL() ? 'RowsPerPageDropdown CurrentPageReport LastPageLink NextPageLink PageLinks PrevPageLink FirstPageLink' : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
+                            isRTL() ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown' : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
                         }
+                        currentPageReportTemplate={
+                            isRTL()
+                                ? `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}` // localized RTL string
+                                : `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}`
+                        }
+                        firstPageLinkIcon={
+                            isRTL()
+                                ? "pi pi-angle-double-right"
+                                : "pi pi-angle-double-left"
+                        }
+                        lastPageLinkIcon={
+                            isRTL()
+                                ? "pi pi-angle-double-left"
+                                : "pi pi-angle-double-right"
+                        }
+
                     />
+
 
                     <Dialog visible={orderDialog} style={{ width: '700px' }} header="Bundle Details" modal className="p-fluid" footer={companyDialogFooter} onHide={hideDialog}>
                         {/* <div className="formgrid grid">
@@ -890,7 +919,7 @@ const OrderPage = () => {
 
                     <Dialog visible={deleteOrderDialog} style={{ width: '450px' }} header={t('TABLE.GENERAL.CONFIRM')} modal footer={deleteCompanyDialogFooter} onHide={hideDeleteOrderDialog}>
                         <div className="flex align-items-center justify-content-center">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <i className="pi pi-exclamation-triangle mx-3" style={{ fontSize: '2rem', color: 'red' }} />
                             {order && (
                                 <span>
                                     {t('ARE_YOU_SURE_YOU_WANT_TO_DELETE')} <b>{order.rechargeble_account}</b>
@@ -901,7 +930,7 @@ const OrderPage = () => {
 
                     <Dialog visible={deleteOrdersDialog} style={{ width: '450px' }} header={t('TABLE.GENERAL.CONFIRM')} modal footer={deleteCompaniesDialogFooter} onHide={hideDeleteOrdersDialog}>
                         <div className="flex align-items-center justify-content-center">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <i className="pi pi-exclamation-triangle mx-3" style={{ fontSize: '2rem', color: 'red' }} />
                             {order && <span>{t('ARE_YOU_SURE_YOU_WANT_TO_DELETE')} the selected companies?</span>}
                         </div>
                     </Dialog>
@@ -919,7 +948,7 @@ const OrderPage = () => {
                         onHide={() => setStatusChangeDialog(false)}
                     >
                         <div className="flex align-items-center justify-content-center">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <i className="pi pi-exclamation-triangle mx-3" style={{ fontSize: '2rem', color: 'red' }} />
                             {order && (
                                 <span>
                                     {t('ARE_YOU_SURE_YOU_WANT_TO_CHANGE_STATUS')} <b>{order.rechargeble_account}</b> to {selectedStatus === 0 && t('ORDER.STATUS.PENDING')}
@@ -979,12 +1008,12 @@ const OrderPage = () => {
                                     {/* Header */}
                                     <div style={{
                                         textAlign: 'center',
-                                        padding: '1rem 0.5rem',
+                                        padding: '0.5rem 0.5rem',
                                         borderBottom: '2px dashed #e5e7eb',
                                         background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
                                     }}>
                                         <div>
-                                            <img src={process.env.NEXT_PUBLIC_PROJECT_LOGO} alt="" className='h-4 w-4' />
+                                            <img src={process.env.NEXT_PUBLIC_PROJECT_LOGO} alt="" className='h-2 w-2' />
                                         </div>
                                         <div style={{
                                             fontSize: '1.25rem',
@@ -1015,19 +1044,19 @@ const OrderPage = () => {
                                     {/* Content */}
                                     <div style={{ padding: '1.5rem 1rem' }}>
                                         {/* Key-Value Rows */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.BUNDLETITLE')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600', textAlign: 'right' }}>{selectedOrder.bundle?.bundle_title || '-'}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.BUNDLETITLE')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600', textAlign: 'right' }}>{selectedOrder.bundle?.bundle_title || '-'}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.RECHARGEABLEACCOUNT')}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.RECHARGEABLEACCOUNT')}</span>
                                             <span style={{ fontSize: '1.125rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedOrder.rechargeble_account}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('VALIDITY')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600', textTransform: 'uppercase' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('VALIDITY')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600', textTransform: 'uppercase' }}>
                                                 {selectedOrder.bundle?.validity_type === 'weekly' ? t('WEEKLY') :
                                                     selectedOrder.bundle?.validity_type === 'monthly' ? t('MONTHLY') :
                                                         selectedOrder.bundle?.validity_type === 'daily' ? t('DAILY') :
@@ -1035,27 +1064,27 @@ const OrderPage = () => {
                                             </span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.COMPANYNAME')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>{selectedOrder.bundle?.service?.company?.company_name || '-'}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.COMPANYNAME')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>{selectedOrder.bundle?.service?.company?.company_name || '-'}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER_ID')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>#{selectedOrder.id}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER_ID')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>#{selectedOrder.id}</span>
                                         </div>
 
                                         {/* Date and Time Row */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.ORDEREDDATE')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.ORDEREDDATE')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>
                                                 {new Date(selectedOrder.created_at).toLocaleDateString('en-GB')}
                                             </span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '0.5rem', borderBottom: '2px dashed #e5e7eb' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER_TIME')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '2px dashed #e5e7eb' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER_TIME')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>
                                                 {new Date(selectedOrder.created_at).toLocaleTimeString('en-GB', {
                                                     hour: '2-digit',
                                                     minute: '2-digit',
@@ -1066,8 +1095,8 @@ const OrderPage = () => {
 
                                         {/* Amount */}
                                         {selectedOrder.bundle?.buying_price && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                                <span style={{ fontSize: '1rem', color: '#6b7280', fontWeight: '600' }}>{t('ORDER.TABLE.COLUMN.PAYABLEAMOUNT')}</span>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
+                                                <span style={{ fontSize: '0.9rem', color: '#6b7280', fontWeight: '600' }}>{t('ORDER.TABLE.COLUMN.PAYABLEAMOUNT')}</span>
                                                 <span style={{ fontSize: '1.25rem', color: '#059669', fontWeight: '700' }}>
                                                     {selectedOrder.bundle.buying_price}
                                                 </span>
@@ -1084,8 +1113,8 @@ const OrderPage = () => {
                                                 border: '1px solid #fecaca'
                                             }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                                                    <span style={{ fontSize: '0.875rem', color: '#dc2626', fontWeight: '600' }}>{t('ORDER.TABLE.COLUMN.REJECTREASON')}</span>
-                                                    <span style={{ fontSize: '0.875rem', color: '#dc2626', fontWeight: '500', textAlign: 'right', flex: 1, marginLeft: '1rem' }}>
+                                                    <span style={{ fontSize: '0.8rem', color: '#dc2626', fontWeight: '600' }}>{t('ORDER.TABLE.COLUMN.REJECTREASON')}</span>
+                                                    <span style={{ fontSize: '0.8rem', color: '#dc2626', fontWeight: '500', textAlign: 'right', flex: 1, marginLeft: '1rem' }}>
                                                         {selectedOrder.reject_reason}
                                                     </span>
                                                 </div>

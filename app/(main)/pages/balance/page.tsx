@@ -33,6 +33,7 @@ import { isRTL } from '../../utilities/rtlUtil';
 import { generateBalanceExcelFile } from '../../utilities/generateExcel';
 import { Paginator } from 'primereact/paginator';
 import { SplitButton } from 'primereact/splitbutton';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const BalancePage = () => {
     let emptyBalance: Balance = {
@@ -104,6 +105,24 @@ const BalancePage = () => {
 
         return () => clearTimeout(timer);
     }, [resellerSearchTerm, dispatch]);
+
+    // Add this useEffect to handle auto-opening the dialog
+            const searchParams = useSearchParams(); // Add this
+            const router=useRouter()
+        
+            useEffect(() => {
+                const action = searchParams.get('action');
+                if (action === 'add') {
+                    // Small delay to ensure the page is fully loaded and Redux state is ready
+                    const timer = setTimeout(() => {
+                        openNew();
+                        // Optional: Clean up the URL after opening the dialog
+                        router.replace('/pages/balance');
+                    }, 300);
+        
+                    return () => clearTimeout(timer);
+                }
+            }, [searchParams, router]);
 
     const openNew = () => {
         setBalance(emptyBalance);
@@ -248,7 +267,7 @@ const BalancePage = () => {
                         onClick={openNew}
                     />
                     <div className="flex-1 min-w-[100px]" ref={filterRef} style={{ position: 'relative' }}>
-                        <Button className="p-button-info w-full" label={t('FILTER')} icon="pi pi-filter" onClick={() => setFilterDialogVisible(!filterDialogVisible)} />
+                        <Button className="p-button-info w-full" label={t('FILTER')} style={{ gap: '8px' }} icon="pi pi-filter" onClick={() => setFilterDialogVisible(!filterDialogVisible)} />
                         {filterDialogVisible && (
                             <div
                                 className="p-card p-fluid"
@@ -327,7 +346,7 @@ const BalancePage = () => {
                             </div>
                         )}
                     </div>
-                    <Button className="flex-1 min-w-[100px]" label={t('EXPORT.EXPORT')} icon={`pi pi-file-excel`} severity="success" onClick={exportToExcel} />
+                    <Button className="flex-1 min-w-[100px]" label={t('EXPORT.EXPORT')} style={{ gap: '8px' }} icon={`pi pi-file-excel`} severity="success" onClick={exportToExcel} />
                 </div>
             </React.Fragment>
         );
@@ -392,7 +411,7 @@ const BalancePage = () => {
                 case 'rejected':
                     return 'bg-red-100 text-red-800';
                 default:
-                    return 'bg-gray-100 text-gray-800';
+                    return 'bg-gray-300 text-gray-800';
             }
         };
 
@@ -401,7 +420,8 @@ const BalancePage = () => {
         return (
             <>
                 <span className="p-column-title">Status</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(status)}`}>{displayStatus}</span>
+                <span className={`px-2 py-1  border-round-xl text-xs font-semibold ${getStatusClass(status)} w-5rem inline-block text-center`}>{displayStatus}</span>
+
             </>
         );
     };
@@ -425,7 +445,7 @@ const BalancePage = () => {
         return (
             <>
                 <span className="p-column-title">Type</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getTypeClass(type)}`}>{displayType}</span>
+                <span className={`px-2 py-1 text-xs font-semibold border-round-xl ${getTypeClass(type)}`}>{displayType}</span>
             </>
         );
     };
@@ -488,13 +508,35 @@ const BalancePage = () => {
     //     );
     // };
 
+    const loanRequestByBodyTemplate = (rowData: Balance) => {
+        // Convert to Boolean safely
+        const isLoan = rowData.is_reseller_loan_request == "1"
+
+        return (
+            <>
+                <span className="p-column-title">Performed By</span>
+
+                {isLoan ? (
+                    <span className="text-blue-600 font-medium">
+                        {t('VERIFIED_BY')} <span>{rowData.performed_by_name}</span>
+                    </span>
+                ) : (
+                    <span className="text-green-600 font-medium">
+                        {t('PERFORMED_BY')} <span>{rowData.performed_by_name}</span>
+                    </span>
+                )}
+            </>
+        );
+    };
+
+
     const actionBodyTemplate = (rowData: Balance) => {
         const items = [
-            {
-                label: t('DELETE'),
-                icon: 'pi pi-trash',
-                command: () => confirmDeleteBalance(rowData)
-            },
+            // {
+            //     label: t('DELETE'),
+            //     icon: 'pi pi-trash',
+            //     command: () => confirmDeleteBalance(rowData)
+            // },
 
             {
                 label: t('VERIFY'),
@@ -678,7 +720,7 @@ const BalancePage = () => {
                         responsiveLayout="scroll"
                     >
                         {/* <Column selectionMode="multiple" headerStyle={{ width: '4rem' }}></Column> */}
-                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('BALANCE.TABLE.COLUMN.RESELLER')} body={resellerNameBodyTemplate}></Column>
+                        <Column headerStyle={{ whiteSpace: 'nowrap', minWidth: '120px' }} style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('BALANCE.TABLE.COLUMN.RESELLER')} body={resellerNameBodyTemplate}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('BALANCE.TABLE.COLUMN.AMOUNT')} body={amountBodyTemplate}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('BALANCE.TABLE.COLUMN.CURRENCY')} body={currencyBodyTemplate}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('BALANCE.TABLE.COLUMN.REMAINING_BALANCE')} body={remainingBalanceBodyTemplate}></Column>
@@ -686,6 +728,7 @@ const BalancePage = () => {
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('TYPE')} body={typeBodyTemplate}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('BALANCE.TABLE.COLUMN.DESCRIPTIONS')} body={descriptionBodyTemplate}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('PERFORMED_BY')} body={performedByBodyTemplate}></Column>
+                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('VERIFIED_OR_PERFORMED')} body={loanRequestByBodyTemplate}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} header={t('BALANCE.TABLE.COLUMN.BALANCEDATE')} body={createdAtBodyTemplate}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} body={actionBodyTemplate}></Column>
                     </DataTable>
@@ -696,7 +739,22 @@ const BalancePage = () => {
                         totalRecords={pagination?.total}
                         onPageChange={(e) => onPageChange(e)}
                         template={
-                            isRTL() ? 'RowsPerPageDropdown CurrentPageReport LastPageLink NextPageLink PageLinks PrevPageLink FirstPageLink' : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
+                            isRTL() ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown' : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
+                        }
+                        currentPageReportTemplate={
+                            isRTL()
+                                ? `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}` // localized RTL string
+                                : `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}`
+                        }
+                        firstPageLinkIcon={
+                            isRTL()
+                                ? "pi pi-angle-double-right"
+                                : "pi pi-angle-double-left"
+                        }
+                        lastPageLinkIcon={
+                            isRTL()
+                                ? "pi pi-angle-double-left"
+                                : "pi pi-angle-double-right"
                         }
                     />
 
@@ -976,7 +1034,7 @@ const BalancePage = () => {
 
                     <Dialog visible={deleteBalanceDialog} style={{ width: '450px' }} header={t('TABLE.GENERAL.CONFIRM')} modal footer={deleteBalanceDialogFooter} onHide={hideDeleteBalanceDialog}>
                         <div className="flex align-items-center justify-content-center">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <i className="pi pi-exclamation-triangle mx-3" style={{ fontSize: '2rem', color: 'red' }} />
                             {balance && (
                                 <span>
                                     {t('ARE_YOU_SURE_YOU_WANT_TO_DELETE')} <b></b>
@@ -987,7 +1045,7 @@ const BalancePage = () => {
 
                     <Dialog visible={deleteBalancesDialog} style={{ width: '450px' }} header={t('TABLE.GENERAL.CONFIRM')} modal footer={deleteCompaniesDialogFooter} onHide={hideDeleteBalancesDialog}>
                         <div className="flex align-items-center justify-content-center">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <i className="pi pi-exclamation-triangle mx-3" style={{ fontSize: '2rem', color: 'red' }} />
                             {balance && <span>{t('ARE_YOU_SURE_YOU_WANT_TO_DELETE')} the selected companies?</span>}
                         </div>
                     </Dialog>

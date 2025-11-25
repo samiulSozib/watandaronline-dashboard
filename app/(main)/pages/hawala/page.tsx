@@ -31,6 +31,7 @@ import { _fetchResellers } from '@/app/redux/actions/resellerActions';
 import { _fetchCurrencies } from '@/app/redux/actions/currenciesActions';
 import { Checkbox } from 'primereact/checkbox';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // Form Data Interface
 interface HawalaFormData {
@@ -222,6 +223,24 @@ const HawalaPage = () => {
             [name]: value,
         }));
     };
+
+    // Add this useEffect to handle auto-opening the dialog
+    const searchParams = useSearchParams(); // Add this
+    const router = useRouter()
+
+    useEffect(() => {
+        const action = searchParams.get('action');
+        if (action === 'add') {
+            // Small delay to ensure the page is fully loaded and Redux state is ready
+            const timer = setTimeout(() => {
+                openAddHawalaDialog();
+                // Optional: Clean up the URL after opening the dialog
+                router.replace('/pages/hawala');
+            }, 300);
+
+            return () => clearTimeout(timer);
+        }
+    }, [searchParams, router]);
 
     const openAddHawalaDialog = () => {
         setAddHawalaDialog(true);
@@ -885,9 +904,24 @@ const HawalaPage = () => {
                         rows={pagination?.items_per_page}
                         totalRecords={pagination?.total}
                         onPageChange={onPageChange}
-                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="{first} to {last} of {totalRecords}"
-                        className="mt-3"
+                        template={
+                            isRTL() ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown' : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
+                        }
+                        currentPageReportTemplate={
+                            isRTL()
+                                ? `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}` // localized RTL string
+                                : `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}`
+                        }
+                        firstPageLinkIcon={
+                            isRTL()
+                                ? "pi pi-angle-double-right"
+                                : "pi pi-angle-double-left"
+                        }
+                        lastPageLinkIcon={
+                            isRTL()
+                                ? "pi pi-angle-double-left"
+                                : "pi pi-angle-double-right"
+                        }
                     />
 
                     {/* Exchange Rates Modal */}
@@ -1058,15 +1092,15 @@ const HawalaPage = () => {
                                     {/* Header */}
                                     <div style={{
                                         textAlign: 'center',
-                                        padding: '1rem 0.5rem',
+                                        padding: '0.5rem 0.5rem',
                                         borderBottom: '2px dashed #e5e7eb',
                                         background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
                                     }}>
                                         <div>
-                                            <img src={process.env.NEXT_PUBLIC_PROJECT_LOGO} alt="" className='h-4 w-4' />
+                                            <img src={process.env.NEXT_PUBLIC_PROJECT_LOGO} alt="" className='h-2 w-2' />
                                         </div>
                                         <div style={{
-                                            fontSize: '1.25rem',
+                                            fontSize: '1rem',
                                             fontWeight: 'bold',
                                             color: '#1f2937',
                                             marginBottom: '0.5rem'
@@ -1077,7 +1111,7 @@ const HawalaPage = () => {
                                             display: 'inline-block',
                                             padding: '0.25rem 1rem',
                                             borderRadius: '20px',
-                                            fontSize: '0.75rem',
+                                            fontSize: '0.7rem',
                                             fontWeight: 'bold',
                                             textTransform: 'uppercase',
                                             backgroundColor: selectedHawala.status === 'confirmed' ? '#10b981' :
@@ -1096,109 +1130,109 @@ const HawalaPage = () => {
                                     </div>
 
                                     {/* Content */}
-                                    <div style={{ padding: '1.5rem 1rem' }}>
-                                        {/* Hawala branch */}
-                                        {selectedHawala?.branch?.name && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                                <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('MENU.HAWALA_BRANCH')}</span>
-                                                <span style={{ fontSize: '1.125rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala?.branch?.name}</span>
-                                            </div>
-                                        )}
-
+                                    <div style={{ padding: '1rem 0.75rem' }}>
                                         {/* Hawala Number */}
                                         {!selectedHawala?.hawala_custom_number && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                                <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.HAWALA_NUMBER')}</span>
-                                                <span style={{ fontSize: '1.125rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala.hawala_number}</span>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                                <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.HAWALA_NUMBER')}</span>
+                                                <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala.hawala_number}</span>
                                             </div>
                                         )}
-
 
                                         {/* Hawala Custom Number */}
                                         {selectedHawala?.hawala_custom_number && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                                <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.HAWALA_CUSTOM_NUMBER')}</span>
-                                                <span style={{ fontSize: '1.125rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala?.hawala_custom_number}</span>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                                <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.HAWALA_NUMBER')}</span>
+                                                <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala?.hawala_custom_number || '...'}</span>
                                             </div>
                                         )}
 
-
                                         {/* Sender Name */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.SENDER_NAME')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala.sender_name}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.SENDER_NAME')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala.sender_name}</span>
                                         </div>
 
                                         {/* Receiver Name */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.RECEIVER_NAME')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala.receiver_name}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.RECEIVER_NAME')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala.receiver_name}</span>
+                                        </div>
+
+                                        {/* Receiver fATHER */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('RECEIVER_FATHERS_NAME')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala?.receiver_father_name || '...'}</span>
+                                        </div>
+
+                                        {/* Receiver ID CARD NUMBER */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('RECEIVER_ID_CARD_NUMBER')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala?.receiver_id_card_number || '...'}</span>
                                         </div>
 
                                         {/* Hawala Amount */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.AMOUNT')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('AMOUNT')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>
                                                 {selectedHawala.hawala_amount} {selectedHawala.hawala_amount_currency_code}
                                             </span>
                                         </div>
 
-                                        {/* Converted Amount */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.CONVERTED_AMOUNT')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>
-                                                {selectedHawala.converted_amount_taken_from_reseller} {selectedHawala.reseller_prefered_currency_code}
-                                            </span>
-                                        </div>
-
-                                        {/* Commission Amount */}
-                                        {selectedHawala.commission_amount && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                                <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.COMMISSION')}</span>
-                                                <span style={{ fontSize: '1rem', color: '#059669', fontWeight: '600' }}>
-                                                    {selectedHawala.commission_amount} {selectedHawala.reseller_prefered_currency_code}
-                                                </span>
-                                            </div>
-                                        )}
-
                                         {/* Reseller Name */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('HAWALA.TABLE.COLUMN.RESELLER_NAME')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala.reseller?.reseller_name || '-'}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('SERVICE_PROVIDER')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>{selectedHawala.reseller?.reseller_name || '-'}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.ORDEREDDATE')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>
-                                                {selectedHawala.created_at ? new Date(selectedHawala.created_at).toLocaleDateString('en-GB') : '-'}
-                                            </span>
-                                        </div>
-
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '0.5rem', borderBottom: '2px dashed #e5e7eb' }}>
-                                            <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER_TIME')}</span>
-                                            <span style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '600' }}>
-                                                {selectedHawala.created_at ? new Date(selectedHawala.created_at).toLocaleTimeString('en-GB', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    hour12: false
-                                                }) : '-'}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ORDER.TABLE.COLUMN.ORDEREDDATE')}</span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1f2937', fontWeight: '600' }}>
+                                                {selectedHawala.created_at
+                                                    ? new Date(selectedHawala.created_at).toLocaleString("en-GB", {
+                                                        day: "2-digit",
+                                                        month: "2-digit",
+                                                        year: "numeric",
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                        hour12: true
+                                                    })
+                                                    : "-"}
                                             </span>
                                         </div>
 
                                         {/* Admin Note */}
                                         {selectedHawala.admin_note && (
                                             <div style={{
-                                                marginTop: '1rem',
+                                                marginTop: '0.75rem',
                                                 padding: '0.75rem',
                                                 borderRadius: '6px',
                                                 backgroundColor: '#f0f9ff',
                                                 border: '1px solid #bae6fd'
                                             }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                                                    <span style={{ fontSize: '0.875rem', color: '#0369a1', fontWeight: '600' }}>{t('HAWALA.TABLE.COLUMN.ADMIN_NOTE')}</span>
-                                                    <span style={{ fontSize: '0.875rem', color: '#0369a1', fontWeight: '500', textAlign: 'right', flex: 1, marginLeft: '1rem' }}>
+                                                    <span style={{ fontSize: '0.8rem', color: '#0369a1', fontWeight: '600' }}>{t('HAWALA.TABLE.COLUMN.ADMIN_NOTE')}</span>
+                                                    <span style={{ fontSize: '0.8rem', color: '#0369a1', fontWeight: '500', textAlign: 'right', flex: 1, marginLeft: '1rem' }}>
                                                         {selectedHawala.admin_note}
                                                     </span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Hawala branch */}
+                                        {selectedHawala?.branch?.name && (
+                                            <div className='bg-blue-100 p-2 mt-2 rounded-xl shadow-sm'>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                                    <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('MENU.HAWALA_BRANCH')}</span>
+                                                    <span style={{ fontSize: '0.8rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala?.branch?.name}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', borderBottom: '1px solid #f3f4f6' }}>
+                                                    <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('ADDRESS')}</span>
+                                                    <span style={{ fontSize: '0.8rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala?.branch?.address}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', paddingBottom: '1px', }}>
+                                                    <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: '500' }}>{t('PHONE_NUMBER')}</span>
+                                                    <span style={{ fontSize: '0.8rem', color: '#1f2937', fontWeight: '700', letterSpacing: '1px' }}>{selectedHawala?.branch?.phone_number}</span>
                                                 </div>
                                             </div>
                                         )}
@@ -1206,7 +1240,7 @@ const HawalaPage = () => {
 
                                     {/* Footer */}
                                     <div style={{
-                                        padding: '1rem',
+                                        padding: '0.75rem',
                                         borderTop: '2px dashed #e5e7eb',
                                         display: 'flex',
                                         gap: '0.5rem',
@@ -1217,14 +1251,14 @@ const HawalaPage = () => {
                                             icon="pi pi-times"
                                             onClick={() => setViewHawalaDialog(false)}
                                             className="p-button-text p-button-sm"
-                                            style={{ minWidth: '100px' }}
+                                            style={{ minWidth: '90px' }}
                                         />
                                         <Button
                                             label={t('DOWNLOAD')}
                                             icon="pi pi-download"
                                             onClick={downloadHawalaAsImage}
                                             className="p-button-success p-button-sm"
-                                            style={{ minWidth: '100px' }}
+                                            style={{ minWidth: '90px' }}
                                         />
                                     </div>
                                 </div>
