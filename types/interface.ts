@@ -186,7 +186,7 @@ export interface MoneyTransaction {
     sub_reseller_id: string | null;
     reseller: Reseller | null;
     currency: Currency|null;
-    order: string | null;
+    order?: Order ;
 }
 
 export interface Reseller {
@@ -865,6 +865,15 @@ export interface PriceAdjustmentPayload {
     adjustment_type: 'percentage' | 'fixed';
     adjustment_value: number;
     base_price?: 'admin_buying_price' | 'buying_price';
+    service_ids?: number[];
+    confirmation?: boolean;
+}
+
+export interface BulkBundlePricePayload {
+    adjustment_type: 'percentage' | 'fixed';
+    adjustment_value: number;
+    adjustment_direction?:'increase'|'decrease'
+    base_price?: 'admin_buying_price' | 'buying_price'|'selling_price';
     service_ids?: number[];
     confirmation?: boolean;
 }
