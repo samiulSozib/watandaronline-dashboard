@@ -1,3 +1,5 @@
+
+
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { Button } from 'primereact/button';
@@ -24,62 +26,89 @@ import { InputSwitch } from 'primereact/inputswitch';
 import { InputNumber } from 'primereact/inputnumber';
 import { ColorPicker } from 'primereact/colorpicker';
 import { fetchAppSettings, updateAppSettings } from '@/app/redux/actions/appSettingsActions';
-import { AppSettings, Currency } from '@/types/interface';
+import { AppSettings, Currency, SupportContacts } from '@/types/interface';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Sidebar } from 'primereact/sidebar';
 import { _fetchCurrencies } from '@/app/redux/actions/currenciesActions';
+import { 
+  _fetchSupportContacts, 
+  _addSupportContact, 
+  _editSupportContact, 
+  _deleteSupportContact 
+} from '@/app/redux/actions/supportContactActions';
 
 const emptySettings: AppSettings = {
-  is_instant_confirm: false,
-  maintenance_mode: false,
-  allow_new_registrations: false,
-  default_currency: "",
-  exchange_rate_usd_afn: 0,
-  support_phone: "",
-  support_email: "",
-  support_whatsapp: "",
-  alternative_contact_phone: "",
-  alternative_whatsapp: "",
-  telegram_username: "",
-  telegram_url: "",
-  facebook_page_url: "",
-  instagram_handle: "",
-  instagram_url: "",
-  twitter_url: "",
-  tiktok_url: "",
-  youtube_url: "",
-  website_url: "",
-  app_name: "",
-  app_name_i18n: {
-    en: "",
-    fa: "",
-    ps: ""
-  },
-  app_slogan: "",
-  app_slogan_i18n: {
-    en: "",
-    fa: "",
-    ps: ""
-  },
-  logo_url: "",
-  mobile_app_primary_color: "#3498db",
-  mobile_app_secondary_color: "#FFC107",
-  primary_color_font_color: "#FFFFFF",
-  secondary_color_font_color: "#000000",
-  extra_settings: {
-    max_order_per_day: 0,
-    min_topup_amount: 0,
-    max_topup_amount: 0
-  },
-  integration_settings: {
-    SETARAGAN_API_BASE_URL: "",
-    SETARAGAN_API_USERNAME: "",
-    SETARAGAN_API_AUTHKEY: "",
-    SETARAGAN_MSISDN: "",
-    SETARAGAN_REQUEST_ID: "",
-    TELEGRAM_WEBHOOK_URL: "",
-    TELEGRAM_BOT_TOKEN: ""
-  }
+    is_instant_confirm: false,
+    maintenance_mode: false,
+    allow_new_registrations: false,
+    default_currency: "",
+    exchange_rate_usd_afn: 0,
+    support_phone: "",
+    support_email: "",
+    support_whatsapp: "",
+    alternative_contact_phone: "",
+    alternative_whatsapp: "",
+    telegram_username: "",
+    telegram_url: "",
+    facebook_page_url: "",
+    instagram_handle: "",
+    instagram_url: "",
+    twitter_url: "",
+    tiktok_url: "",
+    youtube_url: "",
+    website_url: "",
+    app_name: "",
+    app_name_i18n: {
+        en: "",
+        fa: "",
+        ps: ""
+    },
+    app_slogan: "",
+    app_slogan_i18n: {
+        en: "",
+        fa: "",
+        ps: ""
+    },
+    logo_url: "",
+    mobile_app_primary_color: "#3498db",
+    mobile_app_secondary_color: "#FFC107",
+    primary_color_font_color: "#FFFFFF",
+    secondary_color_font_color: "#000000",
+    extra_settings: {
+        max_order_per_day: 0,
+        min_topup_amount: 0,
+        max_topup_amount: 0
+    },
+    integration_settings: {
+        SETARAGAN_API_BASE_URL: "",
+        SETARAGAN_API_USERNAME: "",
+        SETARAGAN_API_AUTHKEY: "",
+        SETARAGAN_MSISDN: "",
+        SETARAGAN_REQUEST_ID: "",
+        TELEGRAM_WEBHOOK_URL: "",
+        TELEGRAM_BOT_TOKEN: ""
+    },
+    afg_custom_recharge_adjust_type: "decrease",
+    afg_custom_recharge_adjust_mode: "percentage",
+    afg_custom_recharge_adjust_value: 10,
+    afg_custom_recharge_selling_price_adjust_type: "decrease",
+    afg_custom_recharge_selling_price_adjust_mode: "percentage",
+    afg_custom_recharge_selling_price_adjust_value: 0,
+    setaragan_admin_buying_price_percentage: 0,
+};
+
+const emptySupportContact: SupportContacts = {
+    id: 0,
+    title: "",
+    description: "",
+    phone: "",
+    is_whatsapp: false,
+    is_phone: false,
+    status: "active",
+    links: {
+        telegram: "",
+        website: ""
+    }
 };
 
 const AppSettingsPage = () => {
@@ -89,17 +118,25 @@ const AppSettingsPage = () => {
     const [activeTab, setActiveTab] = useState('general');
     const [mobileNavVisible, setMobileNavVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    
+    // Support Contacts States
+    const [supportContacts, setSupportContacts] = useState<SupportContacts[]>([]);
+    const [supportContactDialog, setSupportContactDialog] = useState(false);
+    const [deleteSupportContactDialog, setDeleteSupportContactDialog] = useState(false);
+    const [selectedSupportContact, setSelectedSupportContact] = useState<SupportContacts>(emptySupportContact);
+    const [supportContactSubmitted, setSupportContactSubmitted] = useState(false);
+
     const toast = useRef<Toast>(null);
     const dispatch = useDispatch<AppDispatch>();
     const { loading, settings: reduxSettings } = useSelector((state: any) => state.appSettingsReducer);
+    const { loading: supportContactsLoading, supportContacts: reduxSupportContacts } = useSelector((state: any) => state.supportContactReducer);
     const { t } = useTranslation();
-        const { currencies } = useSelector((state: any) => state.currenciesReducer);
-
+    const { currencies } = useSelector((state: any) => state.currenciesReducer);
 
     useEffect(() => {
         dispatch(fetchAppSettings());
-        dispatch(_fetchCurrencies()); // Fetch currencies
-
+        dispatch(_fetchCurrencies());
+        dispatch(_fetchSupportContacts());
 
         // Check if device is mobile
         const checkIsMobile = () => {
@@ -113,6 +150,12 @@ const AppSettingsPage = () => {
             window.removeEventListener('resize', checkIsMobile);
         };
     }, [dispatch]);
+
+    useEffect(() => {
+        if (reduxSupportContacts) {
+            setSupportContacts(reduxSupportContacts);
+        }
+    }, [reduxSupportContacts]);
 
     const selectedCurrency = currencies?.find((currency: Currency) =>
         currency.code === settings.default_currency
@@ -161,20 +204,149 @@ const AppSettingsPage = () => {
         setSubmitted(false);
     };
 
+    // Support Contacts Functions
+    const openNewSupportContact = () => {
+        setSelectedSupportContact(emptySupportContact);
+        setSupportContactSubmitted(false);
+        setSupportContactDialog(true);
+    };
+
+    const hideSupportContactDialog = () => {
+        setSupportContactSubmitted(false);
+        setSupportContactDialog(false);
+    };
+
+    const hideDeleteSupportContactDialog = () => {
+        setDeleteSupportContactDialog(false);
+    };
+
+    const editSupportContact = (supportContact: SupportContacts) => {
+        setSelectedSupportContact({ ...supportContact });
+        setSupportContactDialog(true);
+    };
+
+    const confirmDeleteSupportContact = (supportContact: SupportContacts) => {
+        setSelectedSupportContact(supportContact);
+        setDeleteSupportContactDialog(true);
+    };
+
+    const saveSupportContact = () => {
+        setSupportContactSubmitted(true);
+
+        if (!selectedSupportContact.title || !selectedSupportContact.phone) {
+            toast.current?.show({
+                severity: 'error',
+                summary: t('VALIDATION_ERROR'),
+                detail: t('PLEASE_FILLED_ALL_REQUIRED_FIELDS'),
+                life: 3000
+            });
+            return;
+        }
+
+        if (selectedSupportContact.id) {
+            dispatch(_editSupportContact(selectedSupportContact, toast, t));
+        } else {
+            dispatch(_addSupportContact(selectedSupportContact, toast, t));
+        }
+        setSupportContactDialog(false);
+    };
+
+    const deleteSupportContact = () => {
+        dispatch(_deleteSupportContact(selectedSupportContact.id, toast, t));
+        setDeleteSupportContactDialog(false);
+        setSelectedSupportContact(emptySupportContact);
+    };
+
+    const supportContactDialogFooter = (
+        <>
+            <Button label={t('APP.GENERAL.CANCEL')} icon="pi pi-times" severity="danger" onClick={hideSupportContactDialog} />
+            <Button label={t('FORM.GENERAL.SUBMIT')} icon="pi pi-check" severity="success" onClick={saveSupportContact} />
+        </>
+    );
+
+    const deleteSupportContactDialogFooter = (
+        <>
+            <Button label={t('NO')} icon="pi pi-times" severity="secondary" onClick={hideDeleteSupportContactDialog} />
+            <Button label={t('YES')} icon="pi pi-check" severity="danger" onClick={deleteSupportContact} />
+        </>
+    );
+
+    const statusBodyTemplate = (rowData: SupportContacts) => {
+        return (
+            <span className={`customer-badge status-${rowData.status}`}>
+                {rowData.status === 'active' ? t('ACTIVE') : t('INACTIVE')}
+            </span>
+        );
+    };
+
+    const actionBodyTemplate = (rowData: SupportContacts) => {
+        return (
+            <div className="flex gap-2">
+                <Button
+                    icon="pi pi-pencil"
+                    severity="info"
+                    rounded
+                    size="small"
+                    onClick={() => editSupportContact(rowData)}
+                />
+                <Button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    rounded
+                    size="small"
+                    onClick={() => confirmDeleteSupportContact(rowData)}
+                />
+            </div>
+        );
+    };
+
+    const renderSupportContactsTab = () => {
+        return (
+            <div className="grid">
+                <div className="col-12">
+                    <div className="card">
+                        <Toolbar className="mb-4" 
+                            left={
+                                <Button
+                                    label={t('SUPPORT_CONTACT.ADD_NEW')}
+                                    icon="pi pi-plus"
+                                    severity="success"
+                                    className="mr-2"
+                                    onClick={openNewSupportContact}
+                                />
+                            }
+                        />
+                        
+                        <DataTable
+                            value={supportContacts}
+                            loading={supportContactsLoading}
+                            responsiveLayout="scroll"
+                            paginator
+                            rows={10}
+                            rowsPerPageOptions={[5, 10, 25]}
+                            emptyMessage={t('SUPPORT_CONTACT.NO_CONTACTS_FOUND')}
+                        >
+                            <Column field="title" header={t('SUPPORT_CONTACT.TITLE')} sortable style={{ minWidth: '200px' }} />
+                            <Column field="description" header={t('SUPPORT_CONTACT.DESCRIPTION')} sortable style={{ minWidth: '250px' }} />
+                            <Column field="phone" header={t('SUPPORT_CONTACT.PHONE')} sortable style={{ minWidth: '150px' }} />
+                            <Column field="is_whatsapp" header={t('SUPPORT_CONTACT.IS_WHATSAPP')} body={(rowData) => rowData.is_whatsapp ? t('YES') : t('NO')} style={{ minWidth: '120px' }} />
+                            <Column field="is_phone" header={t('SUPPORT_CONTACT.IS_PHONE')} body={(rowData) => rowData.is_phone ? t('YES') : t('NO')} style={{ minWidth: '120px' }} />
+                            <Column field="status" header={t('STATUS')} body={statusBodyTemplate} sortable style={{ minWidth: '100px' }} />
+                            <Column body={actionBodyTemplate} style={{ minWidth: '120px' }} />
+                        </DataTable>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
                 <div className="flex justify-end items-center space-x-2">
-                    {/* {isMobile && (
-                        <Button
-                            icon="pi pi-bars"
-                            className="p-button-text p-button-plain"
-                            onClick={() => setMobileNavVisible(true)}
-                        />
-                    )} */}
                     <Button
                         style={{ gap: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? '0.5rem' : '' }}
-                        label={ t('APP_SETTINGS.EDIT_SETTINGS')}
+                        label={t('APP_SETTINGS.EDIT_SETTINGS')}
                         icon="pi pi-cog"
                         severity="info"
                         className={['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'ml-2' : 'mr-2'}
@@ -655,7 +827,7 @@ const AppSettingsPage = () => {
                                 </label>
                                 <InputNumber
                                     id="max_orders"
-                                    value={settings?.extra_settings?.max_order_per_day||0}
+                                    value={settings?.extra_settings?.max_order_per_day || 0}
                                     onValueChange={(e) => setSettings({
                                         ...settings,
                                         extra_settings: { ...settings.extra_settings, max_order_per_day: e.value || 0 }
@@ -826,6 +998,192 @@ const AppSettingsPage = () => {
                     </div>
                 );
 
+            case 'recharge':
+                return (
+                    <div className="grid p-fluid">
+                        <div className="col-12 md:col-6">
+                            <div className="field">
+                                <label htmlFor="recharge_adjust_type" className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.RECHARGE_ADJUST_TYPE')}
+                                </label>
+                                <Dropdown
+                                    id="recharge_adjust_type"
+                                    value={settings.afg_custom_recharge_adjust_type}
+                                    options={[
+                                        { label: t('APP_SETTINGS.DECREASE'), value: "decrease" },
+                                        { label: t('APP_SETTINGS.INCREASE'), value: "increase" }
+                                    ]}
+                                    onChange={(e) => setSettings({
+                                        ...settings,
+                                        afg_custom_recharge_adjust_type: e.value
+                                    })}
+                                    placeholder={t('APP_SETTINGS.SELECT_TYPE')}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="recharge_adjust_mode" className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.RECHARGE_ADJUST_MODE')}
+                                </label>
+                                <Dropdown
+                                    id="recharge_adjust_mode"
+                                    value={settings.afg_custom_recharge_adjust_mode}
+                                    options={[
+                                        { label: t('APP_SETTINGS.PERCENTAGE'), value: "percentage" },
+                                        { label: t('APP_SETTINGS.FIXED'), value: "fixed" }
+                                    ]}
+                                    onChange={(e) => setSettings({
+                                        ...settings,
+                                        afg_custom_recharge_adjust_mode: e.value
+                                    })}
+                                    placeholder={t('APP_SETTINGS.SELECT_MODE')}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="recharge_adjust_value" className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.RECHARGE_ADJUST_VALUE')}
+                                </label>
+                                <InputNumber
+                                    id="recharge_adjust_value"
+                                    value={settings.afg_custom_recharge_adjust_value}
+                                    onValueChange={(e) => setSettings({
+                                        ...settings,
+                                        afg_custom_recharge_adjust_value: e.value || 0
+                                    })}
+                                    mode="decimal"
+                                    minFractionDigits={2}
+                                    maxFractionDigits={2}
+                                    min={0}
+                                />
+                                {settings.afg_custom_recharge_adjust_mode === "percentage" && (
+                                    <small className="text-sm text-500">
+                                        {t('APP_SETTINGS.PERCENTAGE_NOTE')}
+                                    </small>
+                                )}
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="selling_price_adjust_type" className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.SELLING_PRICE_ADJUST_TYPE')}
+                                </label>
+                                <Dropdown
+                                    id="selling_price_adjust_type"
+                                    value={settings.afg_custom_recharge_selling_price_adjust_type}
+                                    options={[
+                                        { label: t('APP_SETTINGS.DECREASE'), value: "decrease" },
+                                        { label: t('APP_SETTINGS.INCREASE'), value: "increase" }
+                                    ]}
+                                    onChange={(e) => setSettings({
+                                        ...settings,
+                                        afg_custom_recharge_selling_price_adjust_type: e.value
+                                    })}
+                                    placeholder={t('APP_SETTINGS.SELECT_TYPE')}
+                                    className="w-full"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="col-12 md:col-6">
+                            <div className="field">
+                                <label htmlFor="selling_price_adjust_mode" className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.SELLING_PRICE_ADJUST_MODE')}
+                                </label>
+                                <Dropdown
+                                    id="selling_price_adjust_mode"
+                                    value={settings.afg_custom_recharge_selling_price_adjust_mode}
+                                    options={[
+                                        { label: t('APP_SETTINGS.PERCENTAGE'), value: "percentage" },
+                                        { label: t('APP_SETTINGS.FIXED'), value: "fixed" }
+                                    ]}
+                                    onChange={(e) => setSettings({
+                                        ...settings,
+                                        afg_custom_recharge_selling_price_adjust_mode: e.value
+                                    })}
+                                    placeholder={t('APP_SETTINGS.SELECT_MODE')}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="selling_price_adjust_value" className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.SELLING_PRICE_ADJUST_VALUE')}
+                                </label>
+                                <InputNumber
+                                    id="selling_price_adjust_value"
+                                    value={settings.afg_custom_recharge_selling_price_adjust_value}
+                                    onValueChange={(e) => setSettings({
+                                        ...settings,
+                                        afg_custom_recharge_selling_price_adjust_value: e.value || 0
+                                    })}
+                                    mode="decimal"
+                                    minFractionDigits={2}
+                                    maxFractionDigits={2}
+                                    min={0}
+                                />
+                                {settings.afg_custom_recharge_selling_price_adjust_mode === "percentage" && (
+                                    <small className="text-sm text-500">
+                                        {t('APP_SETTINGS.SELLING_PRICE_PERCENTAGE_NOTE')}
+                                    </small>
+                                )}
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="setaragan_admin_buying_price_percentage" className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.SETARAGAN_ADMIN_BUYING_PRICE_PERCENTAGE')}
+                                </label>
+                                <InputNumber
+                                    id="setaragan_admin_buying_price_percentage"
+                                    value={settings.setaragan_admin_buying_price_percentage}
+                                    onValueChange={(e) => setSettings({
+                                        ...settings,
+                                        setaragan_admin_buying_price_percentage: e.value || 0
+                                    })}
+                                    mode="decimal"
+                                    minFractionDigits={2}
+                                    maxFractionDigits={2}
+                                    min={0}
+                                    max={100}
+                                    suffix="%"
+                                />
+                                <small className="text-sm text-500">
+                                    {t('APP_SETTINGS.SETARAGAN_ADMIN_BUYING_PRICE_NOTE')}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div className="col-12">
+                            <div className="field">
+                                <label className="font-bold text-sm md:text-base">
+                                    {t('APP_SETTINGS.RECHARGE_SETTINGS_DESCRIPTION')}
+                                </label>
+                                <div className="p-3 border-1 surface-border border-round">
+                                    <p className="text-sm text-500 mb-2">
+                                        {t('APP_SETTINGS.RECHARGE_TYPE_DESC')}
+                                    </p>
+                                    <p className="text-sm text-500 mb-2">
+                                        {t('APP_SETTINGS.RECHARGE_MODE_DESC')}
+                                    </p>
+                                    <p className="text-sm text-500 mb-2">
+                                        {t('APP_SETTINGS.RECHARGE_VALUE_DESC')}
+                                    </p>
+                                    <p className="text-sm text-500 mb-2">
+                                        {t('APP_SETTINGS.SELLING_PRICE_ADJUST_DESC')}
+                                    </p>
+                                    <p className="text-sm text-500">
+                                        {t('APP_SETTINGS.SETARAGAN_ADMIN_BUYING_PRICE_DESC')}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'support-contacts':
+                return renderSupportContactsTab();
+
             default:
                 return null;
         }
@@ -870,6 +1228,22 @@ const AppSettingsPage = () => {
                 className={`p-button-text ${activeTab === 'integration' ? 'p-button-primary' : 'p-button-secondary'} text-sm md:text-base`}
                 onClick={() => {
                     setActiveTab('integration');
+                    setMobileNavVisible(false);
+                }}
+            />
+            <Button
+                label={t('APP_SETTINGS.RECHARGE')}
+                className={`p-button-text ${activeTab === 'recharge' ? 'p-button-primary' : 'p-button-secondary'} text-sm md:text-base`}
+                onClick={() => {
+                    setActiveTab('recharge');
+                    setMobileNavVisible(false);
+                }}
+            />
+            <Button
+                label={t('SUPPORT_CONTACT.TITLE')}
+                className={`p-button-text ${activeTab === 'support-contacts' ? 'p-button-primary' : 'p-button-secondary'} text-sm md:text-base`}
+                onClick={() => {
+                    setActiveTab('support-contacts');
                     setMobileNavVisible(false);
                 }}
             />
@@ -942,8 +1316,8 @@ const AppSettingsPage = () => {
                     >
                         <div className="card" style={{ padding: '20px', maxHeight: '60vh', overflowY: 'auto' }}>
                             <TabView
-                                activeIndex={['general', 'contact', 'branding', 'limits', 'integration'].indexOf(activeTab)}
-                                onTabChange={(e) => setActiveTab(['general', 'contact', 'branding', 'limits', 'integration'][e.index])}
+                                activeIndex={['general', 'contact', 'branding', 'limits', 'integration', 'recharge', 'support-contacts'].indexOf(activeTab)}
+                                onTabChange={(e) => setActiveTab(['general', 'contact', 'branding', 'limits', 'integration', 'recharge', 'support-contacts'][e.index])}
                             >
                                 <TabPanel header={t('APP_SETTINGS.GENERAL')}>
                                     {activeTab === 'general' && renderTabContent()}
@@ -960,7 +1334,157 @@ const AppSettingsPage = () => {
                                 <TabPanel header={t('APP_SETTINGS.INTEGRATION')}>
                                     {activeTab === 'integration' && renderTabContent()}
                                 </TabPanel>
+                                <TabPanel header={t('APP_SETTINGS.RECHARGE')}>
+                                    {activeTab === 'recharge' && renderTabContent()}
+                                </TabPanel>
+                                <TabPanel header={t('SUPPORT_CONTACT.TITLE')}>
+                                    {activeTab === 'support-contacts' && renderTabContent()}
+                                </TabPanel>
                             </TabView>
+                        </div>
+                    </Dialog>
+
+                    {/* Support Contact Dialog */}
+                    <Dialog
+                        visible={supportContactDialog}
+                        style={{ width: isMobile ? '95vw' : '500px' }}
+                        header={selectedSupportContact.id ? t('SUPPORT_CONTACT.EDIT_CONTACT') : t('SUPPORT_CONTACT.ADD_NEW')}
+                        modal
+                        className="p-fluid"
+                        footer={supportContactDialogFooter}
+                        onHide={hideSupportContactDialog}
+                    >
+                        <div className="field">
+                            <label htmlFor="title" className="font-bold">
+                                {t('SUPPORT_CONTACT.TITLE')} *
+                            </label>
+                            <InputText
+                                id="title"
+                                value={selectedSupportContact.title}
+                                onChange={(e) => setSelectedSupportContact({ ...selectedSupportContact, title: e.target.value })}
+                                required
+                                className={classNames({
+                                    'p-invalid': supportContactSubmitted && !selectedSupportContact.title
+                                })}
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="description" className="font-bold">
+                                {t('SUPPORT_CONTACT.DESCRIPTION')}
+                            </label>
+                            <InputText
+                                id="description"
+                                value={selectedSupportContact.description}
+                                onChange={(e) => setSelectedSupportContact({ ...selectedSupportContact, description: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="phone" className="font-bold">
+                                {t('SUPPORT_CONTACT.PHONE')} *
+                            </label>
+                            <InputText
+                                id="phone"
+                                value={selectedSupportContact.phone}
+                                onChange={(e) => setSelectedSupportContact({ ...selectedSupportContact, phone: e.target.value })}
+                                required
+                                className={classNames({
+                                    'p-invalid': supportContactSubmitted && !selectedSupportContact.phone
+                                })}
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="telegram" className="font-bold">
+                                {t('SUPPORT_CONTACT.TELEGRAM_LINK')}
+                            </label>
+                            <InputText
+                                id="telegram"
+                                value={selectedSupportContact.links.telegram}
+                                onChange={(e) => setSelectedSupportContact({
+                                    ...selectedSupportContact,
+                                    links: { ...selectedSupportContact.links, telegram: e.target.value }
+                                })}
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="website" className="font-bold">
+                                {t('SUPPORT_CONTACT.WEBSITE_LINK')}
+                            </label>
+                            <InputText
+                                id="website"
+                                value={selectedSupportContact.links.website}
+                                onChange={(e) => setSelectedSupportContact({
+                                    ...selectedSupportContact,
+                                    links: { ...selectedSupportContact.links, website: e.target.value }
+                                })}
+                            />
+                        </div>
+
+                        <div className="grid">
+                            <div className="col-12 md:col-6">
+                                <div className="field flex align-items-center">
+                                    <InputSwitch
+                                        id="is_whatsapp"
+                                        checked={selectedSupportContact.is_whatsapp}
+                                        onChange={(e) => setSelectedSupportContact({ ...selectedSupportContact, is_whatsapp: e.value })}
+                                    />
+                                    <label htmlFor="is_whatsapp" className="ml-2">
+                                        {t('SUPPORT_CONTACT.IS_WHATSAPP')}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="col-12 md:col-6">
+                                <div className="field flex align-items-center">
+                                    <InputSwitch
+                                        id="is_phone"
+                                        checked={selectedSupportContact.is_phone}
+                                        onChange={(e) => setSelectedSupportContact({ ...selectedSupportContact, is_phone: e.value })}
+                                    />
+                                    <label htmlFor="is_phone" className="ml-2">
+                                        {t('SUPPORT_CONTACT.IS_PHONE')}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="col-12 md:col-6">
+                                <div className="field">
+                                    <label htmlFor="status" className="font-bold">
+                                        {t('STATUS')}
+                                    </label>
+                                    <Dropdown
+                                        id="status"
+                                        value={selectedSupportContact.status}
+                                        options={[
+                                            { label: t('ACTIVE'), value: 'active' },
+                                            { label: t('INACTIVE'), value: 'inactive' }
+                                        ]}
+                                        onChange={(e) => setSelectedSupportContact({ ...selectedSupportContact, status: e.value })}
+                                        placeholder={t('SELECT_STATUS')}
+                                        className="w-full"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </Dialog>
+
+                    {/* Delete Support Contact Dialog */}
+                    <Dialog
+                        visible={deleteSupportContactDialog}
+                        style={{ width: '450px' }}
+                        header={t('CONFIRM')}
+                        modal
+                        footer={deleteSupportContactDialogFooter}
+                        onHide={hideDeleteSupportContactDialog}
+                    >
+                        <div className="confirmation-content">
+                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <span>
+                                {t('SUPPORT_CONTACT.CONFIRM_DELETE')} <b>{selectedSupportContact.title}</b>?
+                            </span>
                         </div>
                     </Dialog>
                 </div>
