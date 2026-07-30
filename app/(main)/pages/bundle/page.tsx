@@ -20,7 +20,7 @@ import { Paginator } from 'primereact/paginator';
 import { _fetchCurrencies } from '@/app/redux/actions/currenciesActions';
 import { currenciesReducer } from '../../../redux/reducers/currenciesReducer';
 import { AppDispatch } from '@/app/redux/store';
-import { ApiBinding, Bundle, Provider, RawInternet, Service } from '@/types/interface';
+import { ApiBinding, Bundle, Category, Product, Provider, RawInternet, Service } from '@/types/interface';
 import { ProgressBar } from 'primereact/progressbar';
 import withAuth from '../../authGuard';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +31,7 @@ import { _fetchProviders } from '@/app/redux/actions/providerActions';
 import { _fetchSingleProvider } from '@/app/redux/actions/singleProviderAction';
 import { singleProviderReducer } from '../../../redux/reducers/singleProviderReducer';
 import BundleForm from '../../components/Form/BundleForm';
+import { fetchProviderCategories, fetchCategoryProducts, clearSelectedCategory } from '@/app/redux/actions/providerActions';
 
 const BundlePage = () => {
     let emptyBundle: Bundle = {
@@ -57,6 +58,8 @@ const BundlePage = () => {
         api_provider_bundle_id: null,
         api_binding: null
     };
+
+
 
     const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
     const [selectedCapability, setSelectedCapability] = useState('');
@@ -89,7 +92,7 @@ const BundlePage = () => {
 
     const [activeFilters, setActiveFilters] = useState({});
     const { providers } = useSelector((state: any) => state.providerReducer);
-    const { rawInternets } = useSelector((state: any) => state.singleProviderReducer);
+    const { rawInternets, rawBundles } = useSelector((state: any) => state.singleProviderReducer);
 
     const [providerSearchTag, setProviderSearchTag] = useState('');
 
@@ -97,6 +100,12 @@ const BundlePage = () => {
     const [bundleToUnset, setBundleToUnset] = useState<Bundle | null>(null);
     const [editingRows, setEditingRows] = useState({});
 
+    // State for mzr provider categories and products
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
+    const [loadingProducts, setLoadingProducts] = useState(false);
 
     useEffect(() => {
         dispatch(_fetchBundleList(1, searchTag));
@@ -106,6 +115,24 @@ const BundlePage = () => {
         dispatch(_fetchServiceCategories());
     }, [dispatch, searchTag]);
 
+    // useEffect(() => {
+    //     if (serviceDialog) {
+    //         // Fetch all required dropdown data
+    //         if (currencies.length === 0) {
+    //             dispatch(_fetchCurrencies());
+    //         }
+    //         if (services.length === 0) {
+    //             dispatch(_fetchServiceList());
+    //         }
+    //         if (companies.length === 0) {
+    //             dispatch(_fetchCompanies());
+    //         }
+    //         if (serviceCategories.length === 0) {
+    //             dispatch(_fetchServiceCategories());
+    //         }
+    //     }
+    // }, [serviceDialog, dispatch]);
+
     useEffect(() => {
         const timer = setTimeout(() => {
             if (providerSearchTag) {
@@ -113,14 +140,76 @@ const BundlePage = () => {
             } else {
                 dispatch(_fetchProviders(1, ''));
             }
-        }, 300); // Debounce for 300ms
+        }, 300);
 
         return () => clearTimeout(timer);
     }, [providerSearchTag, dispatch]);
 
+    // Fetch categories when mzr provider is selected
     useEffect(() => {
-        if (selectedProvider && selectedCapability) dispatch(_fetchSingleProvider(selectedProvider?.id, selectedProvider?.code, selectedCapability));
-    }, [dispatch, selectedProvider, selectedCapability]);
+        if (selectedProvider && selectedProvider.code === 'mzr') {
+            const loadCategories = async () => {
+                setLoadingCategories(true);
+                try {
+                    const result = await dispatch(fetchProviderCategories(selectedProvider.code));
+                    setCategories(result || []);
+                    setSelectedCategory(null);
+                    setCategoryProducts([]);
+                    setSelectedCapability(''); // Clear capability for mzr
+                } catch (error) {
+                    console.error('Error fetching categories:', error);
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: t('ERROR'),
+                        detail: t('FAILED_TO_FETCH_CATEGORIES'),
+                        life: 3000
+                    });
+                } finally {
+                    setLoadingCategories(false);
+                }
+            };
+            loadCategories();
+        } else {
+            setCategories([]);
+            setSelectedCategory(null);
+            setCategoryProducts([]);
+        }
+    }, [selectedProvider, dispatch, t]);
+
+    // Fetch products when category is selected for mzr provider
+    useEffect(() => {
+        if (selectedProvider && selectedProvider.code === 'mzr' && selectedCategory) {
+            const loadProducts = async () => {
+                setLoadingProducts(true);
+                try {
+                    const result = await dispatch(fetchCategoryProducts(selectedProvider.code, selectedCategory.id));
+                    if (result && result.products) {
+                        setCategoryProducts(result.products);
+                    }
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: t('ERROR'),
+                        detail: t('FAILED_TO_FETCH_PRODUCTS'),
+                        life: 3000
+                    });
+                } finally {
+                    setLoadingProducts(false);
+                }
+            };
+            loadProducts();
+        } else {
+            setCategoryProducts([]);
+        }
+    }, [selectedCategory, selectedProvider, dispatch, t]);
+
+    // Fetch rawInternets for non-mzr providers
+    useEffect(() => {
+        if (selectedProvider && selectedCapability && selectedProvider.code !== 'mzr') {
+            dispatch(_fetchSingleProvider(selectedProvider?.id, selectedProvider?.code, selectedCapability, bundle.service?.company?.company_name ?? ""));
+        }
+    }, [dispatch, selectedProvider, selectedCapability, bundle.service?.company?.company_name]);
 
     useEffect(() => {
         if (Object.keys(activeFilters).length > 0) {
@@ -132,6 +221,12 @@ const BundlePage = () => {
         setBundle(emptyBundle);
         setSubmitted(false);
         setServiceDialog(true);
+        setSelectedProvider(null);
+        setSelectedCapability('');
+        setSelectedProviderBundle(null);
+        setSelectedCategory(null);
+        setCategories([]);
+        setCategoryProducts([]);
     };
 
     const hideDialog = () => {
@@ -141,6 +236,9 @@ const BundlePage = () => {
         setSelectedProvider(null);
         setSelectedCapability('');
         setSelectedProviderBundle(null);
+        setSelectedCategory(null);
+        setCategories([]);
+        setCategoryProducts([]);
     };
 
     const hideDeleteServiceDialog = () => {
@@ -154,7 +252,6 @@ const BundlePage = () => {
     };
 
     const priceEditor = (options: any) => {
-
         return (
             <InputText
                 value={options.value}
@@ -164,27 +261,16 @@ const BundlePage = () => {
         );
     };
 
-
-
     const onRowEditChange = (e: any) => {
-
         setEditingRows(e.data);
     };
 
     const onCellEditComplete = (e: any) => {
-        const { newRowData
-            , index } = e;
-        //console.log(newRowData)
+        const { newRowData, index } = e;
 
-        // Update the bundle with new price values
-        if (newRowData
-            .admin_buying_price !== bundles[index]?.admin_buying_price ||
-            newRowData
-                .buying_price !== bundles[index]?.buying_price ||
-            newRowData
-                .selling_price !== bundles[index]?.selling_price) {
-
-
+        if (newRowData.admin_buying_price !== bundles[index]?.admin_buying_price ||
+            newRowData.buying_price !== bundles[index]?.buying_price ||
+            newRowData.selling_price !== bundles[index]?.selling_price) {
             dispatch(_editBundle(newRowData.id, newRowData, toast, t))
         }
     };
@@ -201,65 +287,129 @@ const BundlePage = () => {
             return;
         }
 
+        // For mzr provider, use selectedCategory and categoryProducts
+        if (selectedProvider && selectedProvider.code === 'mzr' && selectedCategory && selectedProviderBundle) {
+            const providerData = {
+                api_provider_id: selectedProvider.id,
+                api_provider_bundle_id: selectedProviderBundle.id,
+                api_binding: {
+                    product_type: selectedCategory.purchase_type,
+                    category_id: selectedCategory.id,
+                    category_name: selectedCategory.name,
+                    product_id: selectedProviderBundle.id,
+                    product_name: selectedProviderBundle.name,
+                    price: selectedProviderBundle.price,
+                    stock: selectedProviderBundle.stock,
+                    description: selectedProviderBundle.description,
 
-        if (bundle.id && bundle.id !== 0) {
-            //dispatch(_editBundle(bundle.id, bundle, toast, t));
-            dispatch(_editBundle(bundle.id, bundle, toast, t))
-                .then((newBundle) => {
-                    if (newBundle && selectedProvider && selectedProviderBundle) {
-                        const providerData = {
-                            api_provider_id: selectedProvider.id,
-                            api_provider_bundle_id: selectedProviderBundle.id,
-                            api_binding: {
-                                product_type: selectedProviderBundle.product_type,
-                                operator: selectedProviderBundle.operator,
-                                internet_type: selectedProviderBundle.internet_type,
-                                sim_type: selectedProviderBundle.sim_type,
-                                product_id: selectedProviderBundle.id,
-                                table_id: selectedProviderBundle.table_id,
-                                name: selectedProviderBundle.name,
-                                days: selectedProviderBundle.days,
-                                volume: selectedProviderBundle.volume,
-                                unit: selectedProviderBundle.unit,
-                                periodicity: selectedProviderBundle.periodicity
-                            }
-                        };
+                    // product_type: selectedCategory.purchase_type,
+                    operator: selectedProviderBundle.operator,
+                    internet_type: selectedProviderBundle.internet_type,
+                    sim_type: selectedProviderBundle.sim_type,
+                    // product_id: selectedProviderBundle.id,
+                    table_id: selectedProviderBundle.table_id,
+                    name: selectedProviderBundle.name,
+                    days: selectedProviderBundle.days,
+                    volume: selectedProviderBundle.volume,
+                    unit: selectedProviderBundle.unit,
+                    periodicity: selectedProviderBundle.periodicity
+                }
+            };
 
-                        dispatch(_setProvider(newBundle.id, providerData, toast, t));
-                    }
-                })
-                .catch((err) => {
-                    console.error('Add bundle failed:', err);
-                });
+            console.log(providerData)
+
+            if (bundle.id && bundle.id !== 0) {
+                if(selectedProvider){
+                    bundle.api_provider_id=selectedProvider.id
+                }
+                dispatch(_editBundle(bundle.id, bundle, toast, t))
+                    .then((newBundle) => {
+                        if (newBundle) {
+                            console.log(providerData)
+                            dispatch(_setProvider(newBundle.id, providerData, toast, t));
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Edit bundle failed:', err);
+                    });
+            } else {
+                if(selectedProvider){
+                    bundle.api_provider_id=selectedProvider.id
+                }
+                dispatch(_addBundle(bundle, toast, t))
+                    .then((newBundle) => {
+                        if (newBundle) {
+                            console.log(providerData)
+                            dispatch(_setProvider(newBundle.id, providerData, toast, t));
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Add bundle failed:', err);
+                    });
+            }
+        }
+        // For non-mzr providers
+        else if (selectedProvider && selectedProviderBundle && selectedProvider.code !== 'mzr') {
+            const providerData = {
+                api_provider_id: selectedProvider.id,
+                api_provider_bundle_id: selectedProviderBundle.id,
+
+                api_binding: {
+                    product_type: selectedProviderBundle.product_type,
+                    operator: selectedProviderBundle.operator,
+                    internet_type: selectedProviderBundle.internet_type,
+                    sim_type: selectedProviderBundle.sim_type,
+                    product_id: selectedProviderBundle.id,
+                    table_id: selectedProviderBundle.table_id,
+                    name: selectedProviderBundle.name,
+                    days: selectedProviderBundle.days,
+                    volume: selectedProviderBundle.volume,
+                    unit: selectedProviderBundle.unit,
+                    periodicity: selectedProviderBundle.periodicity
+                }
+            };
+
+            console.log(providerData)
+
+            if (bundle.id && bundle.id !== 0) {
+                if(selectedProvider){
+                    bundle.api_provider_id=selectedProvider.id
+                }
+                dispatch(_editBundle(bundle.id, bundle, toast, t))
+                    .then((newBundle) => {
+                        if (newBundle) {
+                            console.log(providerData)
+                            dispatch(_setProvider(newBundle.id, providerData, toast, t));
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Edit bundle failed:', err);
+                    });
+            } else {
+                if(selectedProvider){
+                    bundle.api_provider_id=selectedProvider.id
+                }
+                dispatch(_addBundle(bundle, toast, t))
+                    .then((newBundle) => {
+                        if (newBundle) {
+                            console.log(providerData)
+                            dispatch(_setProvider(newBundle.id, providerData, toast, t));
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Add bundle failed:', err);
+                    });
+            }
         } else {
-            // dispatch(_addBundle(bundle, toast, t));
-            dispatch(_addBundle(bundle, toast, t))
-                .then((newBundle) => {
-                    if (newBundle && selectedProvider && selectedProviderBundle) {
-                        const providerData = {
-                            api_provider_id: selectedProvider.id,
-                            api_provider_bundle_id: selectedProviderBundle.id,
-                            api_binding: {
-                                product_type: selectedProviderBundle.product_type,
-                                operator: selectedProviderBundle.operator,
-                                internet_type: selectedProviderBundle.internet_type,
-                                sim_type: selectedProviderBundle.sim_type,
-                                product_id: selectedProviderBundle.id,
-                                table_id: selectedProviderBundle.table_id,
-                                name: selectedProviderBundle.name,
-                                days: selectedProviderBundle.days,
-                                volume: selectedProviderBundle.volume,
-                                unit: selectedProviderBundle.unit,
-                                periodicity: selectedProviderBundle.periodicity
-                            }
-                        };
-
-                        dispatch(_setProvider(newBundle.id, providerData, toast, t));
-                    }
-                })
-                .catch((err) => {
-                    console.error('Add bundle failed:', err);
-                });
+            if(selectedProvider){
+                    bundle.api_provider_id=selectedProvider.id
+                }
+            // Save without provider binding
+            if (bundle.id && bundle.id !== 0) {
+                dispatch(_editBundle(bundle.id, bundle, toast, t));
+            } else {
+                dispatch(_addBundle(bundle, toast, t));
+            }
         }
 
         setServiceDialog(false);
@@ -271,7 +421,6 @@ const BundlePage = () => {
     const editService = (bundle: Bundle) => {
         console.log(bundle);
 
-        // Parse api_binding if it's stringified
         let parsedApiBinding: any = null;
         if (bundle.api_binding) {
             try {
@@ -291,25 +440,35 @@ const BundlePage = () => {
             if (provider) {
                 setSelectedProvider(provider);
 
-                // Match capability
-                const capability = provider.capabilities.find((cap: any) => cap.toLowerCase().includes(parsedApiBinding.internet_type) || cap.toLowerCase().includes(parsedApiBinding.sim_type)) || provider.capabilities[0];
-
-                setSelectedCapability(capability);
-
-                // ✅ Find the actual provider bundle from rawInternets list
-                const providerBundle = rawInternets.find((b: any) => String(b.table_id) === String(parsedApiBinding.table_id) && String(b.id) === String(parsedApiBinding.product_id));
-
-                if (providerBundle) {
-                    setSelectedProviderBundle(providerBundle);
+                // Check if provider is mzr
+                if (provider.code === 'mzr' && parsedApiBinding.category_id) {
+                    // For mzr provider, set category and product
+                    setSelectedCategory({ id: parsedApiBinding.category_id, name: parsedApiBinding.category_name } as Category);
+                    setSelectedProviderBundle({ id: parsedApiBinding.product_id, name: parsedApiBinding.product_name, price: parsedApiBinding.price } as RawInternet);
                 } else {
-                    console.warn('Bundle not found in rawInternets, falling back to parsed object');
-                    setSelectedProviderBundle(parsedApiBinding); // fallback
+                    // For non-mzr providers
+                    const capability = provider.capabilities.find((cap: any) =>
+                        cap.toLowerCase().includes(parsedApiBinding.internet_type) ||
+                        cap.toLowerCase().includes(parsedApiBinding.sim_type)
+                    ) || provider.capabilities[0];
+
+                    setSelectedCapability(capability);
+
+                    const providerBundle = rawInternets.find((b: any) =>
+                        String(b.table_id) === String(parsedApiBinding.table_id) &&
+                        String(b.id) === String(parsedApiBinding.product_id)
+                    );
+
+                    if (providerBundle) {
+                        setSelectedProviderBundle(providerBundle);
+                    } else {
+                        setSelectedProviderBundle(parsedApiBinding);
+                    }
                 }
             }
         }
 
         setServiceDialog(true);
-
     };
 
     const confirmDeleteService = (bundle: Bundle) => {
@@ -326,17 +485,12 @@ const BundlePage = () => {
         setDeleteServiceDialog(false);
     };
 
-    // Add this useEffect hook to your component
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
-
-            // Ignore clicks on dropdown panels (they have .p-dropdown-panel class)
             if (target.closest('.p-dropdown-panel')) {
                 return;
             }
-
-            // Normal check for clicking outside the filter dialog
             if (filterDialogVisible && filterRef.current && !filterRef.current.contains(target)) {
                 setFilterDialogVisible(false);
             }
@@ -385,7 +539,6 @@ const BundlePage = () => {
 
         setSelectedBundles(null);
         setDeleteServicesDialog(false);
-
     };
 
     const confirmUnsetBundle = (bundle: Bundle) => {
@@ -393,7 +546,6 @@ const BundlePage = () => {
         setUnsetDialogVisible(true);
     };
 
-    // Add this function to actually unset the bundle
     const unsetBundle = () => {
         if (bundleToUnset?.id) {
             dispatch(_unsetProvider(bundleToUnset.id, toast, t));
@@ -402,6 +554,9 @@ const BundlePage = () => {
             setSelectedProvider(null);
             setSelectedCapability('');
             setSelectedProviderBundle(null);
+            setSelectedCategory(null);
+            setCategories([]);
+            setCategoryProducts([]);
         }
     };
 
@@ -410,7 +565,7 @@ const BundlePage = () => {
         return (
             <React.Fragment>
                 <div className="my-2" style={{ display: 'flex', gap: '0.5rem', position: 'relative' }}>
-                    <div ref={filterRef} style={{ position: 'relative' }}>
+                    <div className="flex-shrink-0 h-10 min-w-0" ref={filterRef} style={{ position: 'relative' }}>
                         <Button style={{ gap: '8px' }} label={t('ORDER.FILTER.FILTER')} icon="pi pi-filter" className="p-button-info" onClick={() => setFilterDialogVisible(!filterDialogVisible)} />
                         {filterDialogVisible && (
                             <div
@@ -418,8 +573,8 @@ const BundlePage = () => {
                                 style={{
                                     position: 'absolute',
                                     top: '100%',
-                                    left: isRTL() ? 0 : '',
-                                    right: isRTL() ? '' : 0,
+                                    left: isRTL() ? '-100%' : '-20%',
+                                    right: isRTL() ? '-20%' : '-100%',
                                     width: '300px',
                                     zIndex: 1000,
                                     marginTop: '0.5rem',
@@ -428,7 +583,6 @@ const BundlePage = () => {
                             >
                                 <div className="p-card-body" style={{ padding: '1rem' }}>
                                     <div className="grid">
-                                        {/* Bundle Type Filter */}
                                         <div className="col-12">
                                             <label htmlFor="bundleTypeFilter" style={{ fontSize: '0.875rem' }}>
                                                 {t('ORDER.FILTER.BUNDLE_TYPE')}
@@ -446,7 +600,6 @@ const BundlePage = () => {
                                             />
                                         </div>
 
-                                        {/* Company Filter */}
                                         <div className="col-12">
                                             <label htmlFor="companyFilter" style={{ fontSize: '0.875rem' }}>
                                                 {t('ORDER.FILTER.COMPANY')}
@@ -463,7 +616,6 @@ const BundlePage = () => {
                                             />
                                         </div>
 
-                                        {/* Service Filter */}
                                         <div className="col-12">
                                             <label htmlFor="serviceFilter" style={{ fontSize: '0.875rem' }}>
                                                 {t('ORDER.FILTER.SERVICE')}
@@ -472,12 +624,10 @@ const BundlePage = () => {
                                                 id="serviceFilter"
                                                 value={services.find((s: Service) => s.id === filters.filter_service_id) || null}
                                                 options={services}
-                                                // value={filters.filter_service_id}
                                                 onChange={(e) => {
                                                     console.log(e.value.id), setFilters({ ...filters, filter_service_id: e.value.id });
                                                 }}
-                                                optionLabel="company.company_name" // Adjust based on your service object structure
-                                                //  optionValue="id"
+                                                optionLabel="company.company_name"
                                                 placeholder={t('ORDER.FILTER.SELECT_SERVICE')}
                                                 style={{ width: '100%' }}
                                                 itemTemplate={(option) => (
@@ -498,7 +648,6 @@ const BundlePage = () => {
                                             />
                                         </div>
 
-                                        {/* Action Buttons */}
                                         <div className="col-12 mt-3 flex justify-content-between gap-2">
                                             <Button
                                                 label={t('RESET')}
@@ -518,10 +667,6 @@ const BundlePage = () => {
                                                 icon="pi pi-check"
                                                 className="p-button-sm"
                                                 onClick={() => {
-                                                    // Apply filters here
-                                                    // You might want to dispatch an action to fetch filtered orders
-                                                    //dispatch(_fetchOrders(1, searchTag, filters));
-                                                    //console.log(filters)
                                                     handleSubmitFilter(filters);
                                                     setFilterDialogVisible(false);
                                                 }}
@@ -540,15 +685,6 @@ const BundlePage = () => {
                         className={['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'ml-2' : 'mr-2'}
                         onClick={openNew}
                     />
-
-                    {/* <Button
-                            style={{ gap: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? '0.5rem' : '' }}
-                            label={t('APP.GENERAL.DELETE')}
-                            icon="pi pi-trash"
-                            severity="danger"
-                            onClick={confirmDeleteSelected}
-                            disabled={!selectedBundles || !(selectedBundles as any).length}
-                        /> */}
                 </div>
             </React.Fragment>
         );
@@ -659,8 +795,6 @@ const BundlePage = () => {
         );
     };
 
-
-
     const providerInfoBodyTemplate = (rowData: Bundle) => {
         let bindingName = "";
 
@@ -668,14 +802,12 @@ const BundlePage = () => {
             let parsed: ApiBinding;
 
             if (typeof rowData.api_binding === "string") {
-                // Case 1: stringified JSON
                 parsed = JSON.parse(rowData.api_binding) as ApiBinding;
             } else {
-                // Case 2: already parsed object
                 parsed = rowData.api_binding as ApiBinding;
             }
 
-            bindingName = parsed?.name || "N/A";
+            bindingName = parsed?.name || parsed?.product_name || "N/A";
         } catch (e) {
             console.error("Invalid api_binding:", e);
         }
@@ -689,9 +821,6 @@ const BundlePage = () => {
             </>
         );
     };
-
-
-
 
     const createdAtBodyTemplate = (rowData: Bundle) => {
         const formatDate = (dateString: string) => {
@@ -733,16 +862,6 @@ const BundlePage = () => {
         );
     };
 
-    // const header = (
-    //     <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-    //         <h5 className="m-0">Manage Products</h5>
-    //         <span className="block mt-2 md:mt-0 p-input-icon-left">
-    //             <i className="pi pi-search" />
-    //             <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
-    //         </span>
-    //     </div>
-    // );
-
     const companyDialogFooter = (
         <>
             <Button label={t('APP.GENERAL.CANCEL')} icon="pi pi-times" severity="danger" className={isRTL() ? 'rtl-button' : ''} onClick={hideDialog} />
@@ -770,11 +889,10 @@ const BundlePage = () => {
     useEffect(() => {
         if (bundle.service_id) {
             const selectedService = services.find((service: Service) => service.id === bundle.service_id);
-
             if (selectedService) {
                 setBundle((prev) => ({
                     ...prev,
-                    service: selectedService // Update with the selected company object
+                    service: selectedService
                 }));
             }
         }
@@ -799,81 +917,26 @@ const BundlePage = () => {
                         emptyMessage={t('DATA_TABLE.TABLE.NO_DATA')}
                         dir={isRTL() ? 'rtl' : 'ltr'}
                         style={{ direction: isRTL() ? 'rtl' : 'ltr', fontFamily: "'iranyekan', sans-serif,iranyekan" }}
-                        // header={header}
                         scrollHeight='flex'
                         scrollable
                         responsiveLayout="scroll"
-                        paginator={false} // Disable PrimeReact's built-in paginator
+                        paginator={false}
                         rows={pagination?.items_per_page}
                         totalRecords={pagination?.total}
-                        currentPageReportTemplate={
-                            isRTL()
-                                ? `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}` // localized RTL string
-                                : `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}`
-                        }
+                        currentPageReportTemplate={isRTL() ? `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}` : `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}`}
                         editMode="cell"
-
-
                     >
-                        {/* <Column selectionMode="multiple" headerStyle={{ width: '4rem' }}></Column> */}
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }} ></Column>
-
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Bundle Title" header={t('BUNDLE.TABLE.COLUMN.BUNDLENAME')} body={bundleTitleBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '120px' }}></Column>
-                        <Column
-                            style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }}
-                            field="Description"
-                            header={t('BUNDLE.TABLE.COLUMN.BUNDLEDESCRIPTION')}
-                            body={descriptionBodyTemplate}
-                            headerStyle={{ whiteSpace: 'nowrap', minWidth: '120px' }}
-                        ></Column>
-                        <Column
-                            style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }}
-                            field="Validity Type"
-                            header={t('BUNDLE.TABLE.COLUMN.VALIDITYTYPE')}
-                            body={validityTypeBodyTemplate}
-                            headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}
-                        ></Column>
-                        <Column
-                            style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }}
-                            field="admin_buying_price"
-                            header={t('BUNDLE.TABLE.COLUMN.ADMINBUYINGPRICE')}
-                            body={adminBuyingPriceBodyTemplate}
-                            headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}
-                            editor={(options) => priceEditor(options)}
-                            onCellEditComplete={onCellEditComplete}
-                        ></Column>
-
-                        <Column
-                            style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }}
-                            field="buying_price"
-                            header={t('BUNDLE.TABLE.COLUMN.BUYINGPRICE')}
-                            body={buyingPriceBodyTemplate}
-                            headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}
-                            editor={(options) => priceEditor(options)}
-                            onCellEditComplete={onCellEditComplete}
-                        ></Column>
-
-                        <Column
-                            style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }}
-                            field="selling_price"
-                            header={t('BUNDLE.TABLE.COLUMN.SELLINGPRICE')}
-                            body={sellingPriceBodyTemplate}
-                            headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}
-                            editor={(options) => priceEditor(options)}
-                            onCellEditComplete={onCellEditComplete}
-                        ></Column>
+                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Description" header={t('BUNDLE.TABLE.COLUMN.BUNDLEDESCRIPTION')} body={descriptionBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '120px' }}></Column>
+                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Validity Type" header={t('BUNDLE.TABLE.COLUMN.VALIDITYTYPE')} body={validityTypeBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}></Column>
+                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="admin_buying_price" header={t('BUNDLE.TABLE.COLUMN.ADMINBUYINGPRICE')} body={adminBuyingPriceBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }} editor={(options) => priceEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="buying_price" header={t('BUNDLE.TABLE.COLUMN.BUYINGPRICE')} body={buyingPriceBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }} editor={(options) => priceEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
+                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="selling_price" header={t('BUNDLE.TABLE.COLUMN.SELLINGPRICE')} body={sellingPriceBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }} editor={(options) => priceEditor(options)} onCellEditComplete={onCellEditComplete}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Currency" header={t('BUNDLE.TABLE.COLUMN.CURRENCYNAME')} body={currencyBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Service" header={t('BUNDLE.TABLE.FILTER.SERVICE')} body={serviceNameBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}></Column>
-                        <Column
-                            style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }}
-                            field="Category"
-                            header={t('BUNDLE.TABLE.COLUMN.SERVICECATEGORY')}
-                            body={serviceCategoryBodyTemplate}
-                            headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}
-                        ></Column>
-
+                        <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Category" header={t('BUNDLE.TABLE.COLUMN.SERVICECATEGORY')} body={serviceCategoryBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}></Column>
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Created" header={t('BUNDLE_PROVIDER')} body={providerInfoBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}></Column>
-
                         <Column style={{ ...customCellStyle, textAlign: ['ar', 'fa', 'ps', 'bn'].includes(i18n.language) ? 'right' : 'left' }} field="Created" header={t('TABLE.GENERAL.CREATEDAT')} body={createdAtBodyTemplate} headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}></Column>
                     </DataTable>
                     <Paginator
@@ -881,32 +944,29 @@ const BundlePage = () => {
                         rows={pagination?.items_per_page}
                         totalRecords={pagination?.total}
                         onPageChange={(e) => onPageChange(e)}
-                        template={
-                            isRTL() ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown' : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
-                        }
-                        currentPageReportTemplate={
-                            isRTL()
-                                ? `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}` // localized RTL string
-                                : `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}`
-                        }
-                        firstPageLinkIcon={
-                            isRTL()
-                                ? "pi pi-angle-double-right"
-                                : "pi pi-angle-double-left"
-                        }
-                        lastPageLinkIcon={
-                            isRTL()
-                                ? "pi pi-angle-double-left"
-                                : "pi pi-angle-double-right"
-                        }
+                        template={isRTL() ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown' : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'}
+                        currentPageReportTemplate={isRTL() ? `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}` : `${t('DATA_TABLE.TABLE.PAGINATOR.SHOWING')}`}
+                        firstPageLinkIcon={isRTL() ? "pi pi-angle-double-right" : "pi pi-angle-double-left"}
+                        lastPageLinkIcon={isRTL() ? "pi pi-angle-double-left" : "pi pi-angle-double-right"}
                     />
 
-                    <Dialog visible={serviceDialog} style={{ width: '900px', padding: '5px' }} header={t('BUNDLE.DETAILS')} modal className="p-fluid" footer={companyDialogFooter} onHide={hideDialog}>
-                        <div className="card" style={{ padding: '40px' }}>
-                            <div className="formgrid grid">
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.BUNDLETITLE')}
+                    <Dialog
+                        visible={serviceDialog}
+                        style={{ width: '95%', maxWidth: '1200px', padding: '5px' }}
+                        header={t('BUNDLE.DETAILS')}
+                        modal
+                        className="p-fluid"
+                        footer={companyDialogFooter}
+                        onHide={hideDialog}
+
+                        breakpoints={{ '960px': '95vw', '640px': '95vw' }}
+                    >
+                        <div className="card" style={{ padding: '20px' }}>
+                            {/* Basic Information Section */}
+                            <div className="grid formgrid p-fluid">
+                                <div className="field col-12 md:col-6">
+                                    <label htmlFor="bundle_title" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.BUNDLETITLE')} <span className="text-red-500">*</span>
                                     </label>
                                     <InputText
                                         id="bundle_title"
@@ -920,20 +980,20 @@ const BundlePage = () => {
                                         required
                                         autoFocus
                                         placeholder={t('BUNDLE.FORM.PLACEHOLDER.BUNDLETITLE')}
-                                        className={classNames({
+                                        className={classNames('w-full', {
                                             'p-invalid': submitted && !bundle.bundle_title
                                         })}
                                     />
                                     {submitted && !bundle.bundle_title && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
 
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.BUNDLEDESCRIPTION')}
+                                <div className="field col-12 md:col-6">
+                                    <label htmlFor="bundle_description" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.BUNDLEDESCRIPTION')} <span className="text-red-500">*</span>
                                     </label>
                                     <InputText
                                         id="bundle_description"
@@ -945,24 +1005,24 @@ const BundlePage = () => {
                                             }))
                                         }
                                         required
-                                        autoFocus
                                         placeholder={t('BUNDLE.FORM.PLACEHOLDER.BUNDLEDESCRIPTION')}
-                                        className={classNames({
+                                        className={classNames('w-full', {
                                             'p-invalid': submitted && !bundle.bundle_description
                                         })}
                                     />
                                     {submitted && !bundle.bundle_description && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="formgrid grid">
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.ADMINBUYINGPRICE')}
+                            {/* Pricing Section */}
+                            <div className="grid formgrid p-fluid">
+                                <div className="field col-12 md:col-4">
+                                    <label htmlFor="admin_buying_price" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.ADMINBUYINGPRICE')} <span className="text-red-500">*</span>
                                     </label>
                                     <InputText
                                         id="admin_buying_price"
@@ -974,22 +1034,21 @@ const BundlePage = () => {
                                             }))
                                         }
                                         required
-                                        autoFocus
                                         placeholder={t('BUNDLE.FORM.PLACEHOLDER.ADMINBUYINGPRICE')}
-                                        className={classNames({
+                                        className={classNames('w-full', {
                                             'p-invalid': submitted && !bundle.admin_buying_price
                                         })}
                                     />
                                     {submitted && !bundle.admin_buying_price && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
 
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.BUYINGPRICE')}
+                                <div className="field col-12 md:col-4">
+                                    <label htmlFor="buying_price" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.BUYINGPRICE')} <span className="text-red-500">*</span>
                                     </label>
                                     <InputText
                                         id="buying_price"
@@ -1001,24 +1060,21 @@ const BundlePage = () => {
                                             }))
                                         }
                                         required
-                                        autoFocus
                                         placeholder={t('BUNDLE.FORM.PLACEHOLDER.BUYINGPRICE')}
-                                        className={classNames({
+                                        className={classNames('w-full', {
                                             'p-invalid': submitted && !bundle.buying_price
                                         })}
                                     />
                                     {submitted && !bundle.buying_price && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
-                            </div>
 
-                            <div className="formgrid grid">
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.SELLINGPRICE')}
+                                <div className="field col-12 md:col-4">
+                                    <label htmlFor="selling_price" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.SELLINGPRICE')} <span className="text-red-500">*</span>
                                     </label>
                                     <InputText
                                         id="selling_price"
@@ -1030,21 +1086,24 @@ const BundlePage = () => {
                                             }))
                                         }
                                         required
-                                        autoFocus
                                         placeholder={t('BUNDLE.FORM.PLACEHOLDER.SELLINGPRICE')}
-                                        className={classNames({
+                                        className={classNames('w-full', {
                                             'p-invalid': submitted && !bundle.selling_price
                                         })}
                                     />
                                     {submitted && !bundle.selling_price && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.VALIDITYTYPE')}
+                            </div>
+
+                            {/* Validity and Bundle Type Section */}
+                            <div className="grid formgrid p-fluid">
+                                <div className="field col-12 md:col-4">
+                                    <label htmlFor="validity_type" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.VALIDITYTYPE')} <span className="text-red-500">*</span>
                                     </label>
                                     <Dropdown
                                         id="validity_type"
@@ -1067,17 +1126,58 @@ const BundlePage = () => {
                                         className="w-full"
                                     />
                                     {submitted && !bundle.validity_type && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
+
+                                <div className="field col-12 md:col-4">
+                                    <label htmlFor="bundle_type" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('ORDER.FILTER.BUNDLE_TYPE')} <span className="text-red-500">*</span>
+                                    </label>
+                                    <Dropdown
+                                        id="bundle_type"
+                                        options={[
+                                            { label: t('BUNDLE.FORM.INPUT.SELECT.BUNDLETYPE.OPTION.CREDIT'), value: 'credit' },
+                                            { label: t('BUNDLE.FORM.INPUT.SELECT.BUNDLETYPE.OPTION.PACKAGE'), value: 'package' }
+                                        ]}
+                                        value={bundle.bundle_type}
+                                        onChange={(e) => setBundle({ ...bundle, bundle_type: e.value })}
+                                        placeholder={t('ORDER.FILTER.SELECT_TYPE')}
+                                        className="w-full"
+                                    />
+                                    {submitted && !bundle.bundle_type && (
+                                        <small className="p-invalid text-red-500">
+                                            {t('THIS_FIELD_IS_REQUIRED')}
+                                        </small>
+                                    )}
+                                </div>
+
+                                <div className="field col-12 md:col-4">
+                                    <label htmlFor="amount" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.AMOUNT')}
+                                    </label>
+                                    <InputText
+                                        id="amount"
+                                        value={bundle.amount?.toString()}
+                                        onChange={(e) =>
+                                            setBundle((perv) => ({
+                                                ...perv,
+                                                amount: e.target.value
+                                            }))
+                                        }
+                                        placeholder={t('BUNDLE.FORM.PLACEHOLDER.AMOUNT')}
+                                        className="w-full"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="formgrid grid">
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.SERVICENAME')}
+                            {/* Service and Currency Section */}
+                            <div className="grid formgrid p-fluid">
+                                <div className="field col-12 md:col-6">
+                                    <label htmlFor="service" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.SERVICENAME')} <span className="text-red-500">*</span>
                                     </label>
                                     <Dropdown
                                         id="service"
@@ -1093,10 +1193,8 @@ const BundlePage = () => {
                                         optionLabel="company.company_name"
                                         placeholder={t('BUNDLE.FORM.PLACEHOLDER.SERVICENAME')}
                                         className="w-full"
-                                        // filter
-                                        // filterBy="company.company_name,service_category.category_name"
                                         itemTemplate={(option) => (
-                                            <div style={{ display: 'flex', gap: '5px' }}>
+                                            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
                                                 <div>{option.service_category?.category_name}</div>
                                                 <div>- {option.company?.company_name}</div>
                                             </div>
@@ -1104,7 +1202,7 @@ const BundlePage = () => {
                                         valueTemplate={(option) => {
                                             if (!option) return t('BUNDLE.FORM.PLACEHOLDER.SERVICENAME');
                                             return (
-                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
                                                     <div>{option.service_category?.category_name}</div>
                                                     <div>- {option.company?.company_name}</div>
                                                 </div>
@@ -1112,15 +1210,15 @@ const BundlePage = () => {
                                         }}
                                     />
                                     {submitted && !bundle.service_id && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
 
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.CURRENCY')}
+                                <div className="field col-12 md:col-6">
+                                    <label htmlFor="currency" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE.FORM.INPUT.CURRENCY')} <span className="text-red-500">*</span>
                                     </label>
                                     <Dropdown
                                         id="currency"
@@ -1133,80 +1231,28 @@ const BundlePage = () => {
                                             }))
                                         }
                                         optionLabel="name"
-                                        // optionValue='id'
                                         placeholder={t('CURRENCY.GENERAL.SELECTCURRENCY')}
                                         className="w-full"
                                     />
                                     {submitted && !bundle.currency && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
+                                        <small className="p-invalid text-red-500">
                                             {t('THIS_FIELD_IS_REQUIRED')}
                                         </small>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="formgrid grid">
-                                <div className="field col">
-                                    <label htmlFor="bundleTypeFilter" style={{ fontWeight: 'bold' }}>
-                                        {t('ORDER.FILTER.BUNDLE_TYPE')}
+                            {/* Provider Section */}
+                            <div className="grid formgrid p-fluid">
+                                <div className="field col-12">
+                                    <label htmlFor="provider" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                        {t('BUNDLE_PROVIDER')}
                                     </label>
-                                    <Dropdown
-                                        id="bundleTypeFilter"
-                                        options={[
-                                            { label: t('BUNDLE.FORM.INPUT.SELECT.BUNDLETYPE.OPTION.CREDIT'), value: 'credit' },
-                                            { label: t('BUNDLE.FORM.INPUT.SELECT.BUNDLETYPE.OPTION.PACKAGE'), value: 'package' }
-                                        ]}
-                                        value={bundle.bundle_type}
-                                        onChange={(e) => setBundle({ ...bundle, bundle_type: e.value })}
-                                        placeholder={t('ORDER.FILTER.SELECT_TYPE')}
-                                        style={{ width: '100%' }}
-                                    />
-                                    {submitted && !bundle.bundle_type && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
-                                            {t('THIS_FIELD_IS_REQUIRED')}
-                                        </small>
-                                    )}
-                                </div>
-                                {/* {bundle.bundle_type==='credit'&&( */}
-                                <div className="field col">
-                                    <label htmlFor="name" style={{ fontWeight: 'bold' }}>
-                                        {t('BUNDLE.FORM.INPUT.AMOUNT')}
-                                    </label>
-                                    <InputText
-                                        id="amount"
-                                        value={bundle.amount?.toString()}
-                                        onChange={(e) =>
-                                            setBundle((perv) => ({
-                                                ...perv,
-                                                amount: e.target.value
-                                            }))
-                                        }
-                                        required
-                                        autoFocus
-                                        placeholder={t('BUNDLE.FORM.PLACEHOLDER.AMOUNT')}
-                                        className={classNames({
-                                            'p-invalid': submitted && !bundle.amount
-                                        })}
-                                    />
-                                    {submitted && bundle.bundle_type === 'credit' && !bundle.bundle_title && (
-                                        <small className="p-invalid" style={{ color: 'red' }}>
-                                            {t('THIS_FIELD_IS_REQUIRED')}
-                                        </small>
-                                    )}
-                                </div>
-
-                                {/* )} */}
-                            </div>
-
-                            <div className="formgrid grid">
-                                <div className="field col">
-                                    <label htmlFor="provider">{t('BUNDLE_PROVIDER')} *</label>
                                     <Dropdown
                                         id="provider"
                                         value={selectedProvider}
                                         options={providers}
                                         onChange={(e) => {
-                                            console.log(e.value);
                                             setSelectedProvider(e.value);
                                         }}
                                         optionLabel="name"
@@ -1215,86 +1261,219 @@ const BundlePage = () => {
                                         filterPlaceholder={t('ECOMMERCE.COMMON.SEARCH')}
                                         showFilterClear
                                         placeholder={t('SEARCH_PROVIDER')}
-                                        className="w-full"
-                                        panelClassName="min-w-[20rem]"
+                                        className=""
+                                        panelClassName=""
                                         onFilter={(e) => {
                                             setProviderSearchTag(e.filter);
                                         }}
                                     />
                                 </div>
-
-                                <div className="field col">
-                                    <label htmlFor="reseller">{t('CAPABILITIES')} *</label>
-                                    <Dropdown
-                                        id="reseller"
-                                        value={selectedCapability}
-                                        options={selectedProvider?.capabilities}
-                                        onChange={(e) => {
-                                            console.log(e.value);
-                                            setSelectedCapability(e.value);
-                                        }}
-                                        placeholder={t('SEARCH_CAPABILITIES')}
-                                        className="w-full"
-                                        panelClassName="min-w-[20rem]"
-                                    />
-                                </div>
                             </div>
 
-                            <div className="formgrid grid">
-                                <div className="field col">
-                                    <label htmlFor="provider">{t('BUNDLE')} *</label>
-                                    <Dropdown
-                                        id="provider"
-                                        value={selectedProviderBundle}
-                                        options={rawInternets}
-                                        onChange={(e) => {
-                                            console.log(e.value);
-                                            setSelectedProviderBundle(e.value);
-                                        }}
-                                        optionLabel="name"
-                                        filter
-                                        filterBy="name"
-                                        filterPlaceholder={t('ECOMMERCE.COMMON.SEARCH')}
-                                        showFilterClear
-                                        placeholder={t('SEARCH_PROVIDER')}
-                                        className="w-full"
-                                        panelClassName="min-w-[20rem]"
-                                        itemTemplate={(option) => (
-                                            <div className="flex flex-col p-2 gap-2 item-center">
-                                                <div className="font-semibold text-sm">{option.name}</div>
-                                                <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{option.operator}</span>
-                                                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                                                        {option.volume} {option.unit}
-                                                    </span>
-                                                    {option.days && <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">{option.days}</span>}
-                                                    <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded">{option.periodicity}</span>
-                                                    <span className="bg-red-100 text-red-800 px-2 py-1 rounded">{option.amount_rial ? `${option.amount_rial}` : `${option.amount}`}</span>
-                                                </div>
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    {option.internet_type} | {option.sim_type}
-                                                </div>
+                            {/* Dynamic Provider Fields - Capabilities or Categories */}
+                            {selectedProvider && selectedProvider.code !== 'mzr' && (
+                                <div className="grid formgrid p-fluid">
+                                    <div className="field col-12">
+                                        <label htmlFor="capabilities" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                            {t('CAPABILITIES')}
+                                        </label>
+                                        <Dropdown
+                                            id="capabilities"
+                                            value={selectedCapability}
+                                            options={selectedProvider?.capabilities}
+                                            onChange={(e) => {
+                                                setSelectedCapability(e.value);
+                                            }}
+                                            placeholder={t('SEARCH_CAPABILITIES')}
+                                            className=""
+                                            panelClassName=""
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedProvider && selectedProvider.code === 'mzr' && (
+                                <>
+                                    <div className="grid formgrid p-fluid">
+                                        <div className="field col-12">
+                                            <label htmlFor="category" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                                {t('CATEGORIES')}
+                                            </label>
+                                            <Dropdown
+                                                id="category"
+                                                value={selectedCategory}
+                                                options={categories}
+                                                onChange={(e) => {
+                                                    setSelectedCategory(e.value);
+                                                    setSelectedProviderBundle(null);
+                                                }}
+                                                optionLabel="name"
+                                                filter
+                                                filterBy="name"
+                                                filterPlaceholder={t('SEARCH_CATEGORY')}
+                                                showFilterClear
+                                                placeholder={t('SELECT_CATEGORY')}
+                                                className=""
+                                                panelClassName=""
+                                                // loading={loadingCategories}
+                                                itemTemplate={(option) => (
+                                                    <div className="flex flex-col p-2 gap-1">
+                                                        <div className="font-semibold">{option.name}</div>
+                                                        <div className="text-xs text-gray-500">
+                                                            Products: {option.product_count} | Type: {option.purchase_type}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {selectedCategory && (
+                                        <div className="grid formgrid p-fluid">
+                                            <div className="field col-12">
+                                                <label htmlFor="product" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                                    {t('PRODUCTS')}
+                                                </label>
+                                                <Dropdown
+                                                    id="product"
+                                                    value={selectedProviderBundle}
+                                                    options={categoryProducts}
+                                                    onChange={(e) => {
+                                                        setSelectedProviderBundle(e.value);
+                                                    }}
+                                                    optionLabel="name"
+                                                    filter
+                                                    filterBy="name"
+                                                    filterPlaceholder={t('SEARCH_PRODUCT')}
+                                                    showFilterClear
+                                                    placeholder={t('SELECT_PRODUCT')}
+                                                    className=""
+                                                    panelClassName=""
+                                                    // loading={loadingProducts}
+                                                    itemTemplate={(option) => (
+                                                        <div className="flex flex-col p-2 gap-2">
+                                                            <div className="font-semibold text-sm">{option.name}</div>
+                                                            <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                                                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Price: {option.price}</span>
+                                                                {option.stock !== undefined && (
+                                                                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded">Stock: {option.stock}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    valueTemplate={(option) => {
+                                                        if (!option) return t('SELECT_PRODUCT');
+                                                        return (
+                                                            <div className="flex flex-col">
+                                                                <span className="font-semibold text-sm">{option.name}</span>
+                                                                <span className="text-xs text-gray-600">Price: {option.price}</span>
+
+                                                            </div>
+                                                        );
+                                                    }}
+                                                />
                                             </div>
-                                        )}
-                                        valueTemplate={(option) => {
-                                            if (!option) return t('SEARCH_BUNDLE');
-                                            return (
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-sm">{option.name}</span>
-                                                    <span className="text-xs text-gray-600">
-                                                        {option.volume} {option.unit} <span className="mx-2"> | </span> {option.amount_rial ? `${option.amount_rial}` : `${option.amount}`}{' '}
-                                                    </span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {selectedProvider && selectedProvider.code !== 'mzr' && selectedCapability && (
+                                <div className="grid formgrid p-fluid">
+                                    <div className="field col-12">
+                                        <label htmlFor="bundle_select" style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                            {t('BUNDLE')}
+                                        </label>
+                                        <Dropdown
+                                            id="bundle_select"
+                                            value={selectedProviderBundle}
+                                            options={rawInternets}
+                                            onChange={(e) => {
+                                                setSelectedProviderBundle(e.value);
+                                            }}
+                                            optionLabel="name"
+                                            filter
+                                            filterBy="title,operator,validity"
+                                            filterPlaceholder={t('ECOMMERCE.COMMON.SEARCH')}
+                                            showFilterClear
+                                            placeholder={t('SEARCH_BUNDLE')}
+                                            className="w-full"
+                                            panelClassName="w-full"
+                                            itemTemplate={(option) => (
+                                                <div className="flex flex-col p-2 gap-2">
+                                                    <div className="font-semibold text-sm">{option.name || option.title}</div>
+                                                    <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                                                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{option.operator}</span>
+                                                        {option.validity && <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">{option.validity}</span>}
+                                                        {option.price && <span className="bg-red-100 text-red-800 px-2 py-1 rounded">Price: {option.price}</span>}
+                                                    </div>
                                                 </div>
-                                            );
-                                        }}
-                                    />
+                                            )}
+                                            valueTemplate={(option) => {
+                                                if (!option) return t('SEARCH_BUNDLE');
+
+                                                return (
+                                                    <div className="flex flex-col gap-1 justify-center items-center">
+                                                        <span className="font-semibold text-sm">
+                                                            {option.name || option.title}
+                                                        </span>
+
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.operator}
+                                                        </span>
+
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.currency}
+                                                        </span>
+
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.category}
+                                                        </span>
+
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.validity}
+                                                        </span>
+
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.price}
+                                                        </span>
+
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.voulume}
+                                                        </span>
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.unit}
+                                                        </span>
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.sim_type}
+                                                        </span>
+                                                        <span className="text-xs text-gray-600">
+                                                            {option.internet_type}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="gridcol col">{bundle.api_provider_id && <Button label={t('UNSET_BUNDLE')} icon="pi pi-times" severity="danger" className={isRTL() ? 'rtl-button' : ''} onClick={() => confirmUnsetBundle(bundle)} />}</div>
+                            )}
+
+                            {/* Unset Bundle Button */}
+                            {bundle.api_provider_id && (
+                                <div className="grid formgrid p-fluid">
+                                    <div className="field col-12">
+                                        <Button
+                                            label={t('UNSET_BUNDLE')}
+                                            icon="pi pi-times"
+                                            severity="danger"
+                                            className="w-full"
+                                            onClick={() => confirmUnsetBundle(bundle)}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </Dialog>
-
-
 
                     <Dialog visible={deleteServiceDialog} style={{ width: '450px' }} header={t('TABLE.GENERAL.CONFIRM')} modal footer={deleteCompanyDialogFooter} onHide={hideDeleteServiceDialog}>
                         <div className="flex align-items-center justify-content-center">

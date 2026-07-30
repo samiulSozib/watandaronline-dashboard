@@ -97,13 +97,26 @@ const OrderPage = () => {
     // --- Fetch Orders Whenever Filters OR SearchTag Changes ---
     useEffect(() => {
         dispatch(_fetchOrders(1, searchTag, activeFilters));
-    }, [activeFilters, searchTag,dispatch]);
+    }, [activeFilters, searchTag, dispatch]);
 
+
+    // useEffect(() => {
+    //     dispatch(_fetchCompanies());
+    //     dispatch(_fetchServiceList());
+    // }, [dispatch, filterDialogVisible]);
 
     useEffect(() => {
-        dispatch(_fetchCompanies());
-        dispatch(_fetchServiceList());
-    }, [dispatch, filterDialogVisible]);
+    if (filterDialogVisible) {
+        // Fetch companies if not already loaded
+        if (companies.length === 0) {
+            dispatch(_fetchCompanies());
+        }
+        // Fetch services if not already loaded
+        if (services.length === 0) {
+            dispatch(_fetchServiceList());
+        }
+    }
+}, [filterDialogVisible, dispatch, companies.length, services.length]);
 
     const hideDialog = () => {
         setSubmitted(false);
@@ -783,7 +796,7 @@ const OrderPage = () => {
             t,
             toast,
             all: true,
-            filters:activeFilters
+            filters: activeFilters
         });
     };
 

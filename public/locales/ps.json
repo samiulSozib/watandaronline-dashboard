@@ -1239,7 +1239,6 @@
         "FIELDS.NO_FIELDS": "تر اوسه هیڅ سفارشي فیلډ نه دی زیات شوی",
         "FIELDS.ADD_FIRST": "لومړی فیلډ زیات کړئ"
     },
-   
     "TOTAL_CUSTOM_FIELD": "ټول سفارشي فیلډونه",
     "MENU.SETTINGS": "تنظیمات",
     "CURRENCY.GENERAL.BASE_RATE": "بنسټیزه کچه",
@@ -1590,181 +1589,157 @@
     "SELECT_ADJUST_MODE": "د تنظیم حالت وټاکئ",
     "ENTER_ADJUST_VALUE": "د تنظیم اندازه دننه کړئ",
     "FIXED": "ثابت",
-    
-  "SUPPORT_CONTACTS": "د ملاتړ اړیکې",
-
-  "SUPPORT_CONTACT_ADD_FAILED": "د ملاتړ اړیکه اضافه کول ناکام شول",
-  "SUPPORT_CONTACT_UPDATE_FAILED": "د ملاتړ اړیکه سمول ناکام شول",
-  "SUPPORT_CONTACT_DELETE_FAILED": "د ملاتړ اړیکه حذف کول ناکام شول",
-
-  "FETCH_SUPPORT_CONTACTS_FAILED": "د ملاتړ اړیکو ترلاسه کول ناکام شول",
-
-  "TITLE": "سرلیک",
-  "PHONE": "د تلیفون شمېره",
-
-  "WHATSAPP": "واټساپ",
-  "TELEGRAM": "تلگرام",
-  "WEBSITE": "وېب‌سایټ",
-
-  "APP_SETTINGS": {
-    "APP_SETTINGS": "د اپلیکیشن تنظیمات",
-    "EDIT_SETTINGS": "تنظیمات سمول",
-    "GENERAL": "عمومي",
-    "CONTACT_INFO": "د اړیکې معلومات",
-    "BRANDING": "برانډینګ",
-    "LIMITS": "محدودیتونه",
-    "INTEGRATION": "یوځای کېدل",
-    "RECHARGE": "د چارج تنظیمات",
     "SUPPORT_CONTACTS": "د ملاتړ اړیکې",
-
-    "APP_NAME": "د اپلیکیشن نوم",
-    "APP_SLOGAN": "د اپلیکیشن شعار",
-    "DEFAULT_CURRENCY": "اصلي اسعار",
-    "EXCHANGE_RATE": "د تبادلې نرخ (ډالر ته افغانۍ)",
-    "WEBSITE_URL": "د وېب‌سایټ لینک",
-
-    "FEATURES": "ځانګړتیاوې",
-    "INSTANT_CONFIRM": "فوري تایید",
-    "MAINTENANCE_MODE": "د ترمیم حالت",
-    "ALLOW_REGISTRATIONS": "نوي ثبتونه اجازه لري",
-
-    "APP_NAME_EN": "د اپلیکیشن نوم (انګلیسي)",
-    "APP_NAME_FA": "د اپلیکیشن نوم (فارسي)",
-    "APP_NAME_PS": "د اپلیکیشن نوم (پښتو)",
-    "APP_SLOGAN_EN": "شعار (انګلیسي)",
-    "APP_SLOGAN_FA": "شعار (فارسي)",
-    "APP_SLOGAN_PS": "شعار (پښتو)",
-
-    "SUPPORT_PHONE": "د ملاتړ تلیفون",
-    "SUPPORT_EMAIL": "د ملاتړ ایمیل",
-    "SUPPORT_WHATSAPP": "د ملاتړ واټساپ",
-    "ALTERNATIVE_PHONE": "بدیل تلیفون",
-    "ALTERNATIVE_WHATSAPP": "بدیل واټساپ",
-    "TELEGRAM_USERNAME": "د تلگرام کارن نوم",
-    "TELEGRAM_URL": "د تلگرام لینک",
-    "FACEBOOK_URL": "د فیسبوک پاڼې لینک",
-    "INSTAGRAM_HANDLE": "د انسټاګرام کارن نوم",
-    "INSTAGRAM_URL": "د انسټاګرام لینک",
-    "TWITTER_URL": "د ټویټر لینک",
-    "TIKTOK_URL": "د ټیک ټاک لینک",
-    "YOUTUBE_URL": "د یوټیوب لینک",
-
-    "PRIMARY_COLOR": "اصلي رنګ",
-    "PRIMARY_FONT_COLOR": "د فونټ اصلي رنګ",
-    "SECONDARY_COLOR": "ثانوي رنګ",
-    "SECONDARY_FONT_COLOR": "د فونټ ثانوي رنګ",
-
-    "MAX_ORDERS_PER_DAY": "په ورځ کې اعظمي فرمایشونه",
-    "MIN_TOPUP_AMOUNT": "لږ تر لږه د چارج اندازه",
-    "MAX_TOPUP_AMOUNT": "اعظمي د چارج اندازه",
-
-    "API_BASE_URL": "د API اصلي لینک",
-    "API_USERNAME": "د API کارن نوم",
-    "API_AUTHKEY": "د API تصدیق کیلي",
-    "API_MSISDN": "د API MSISDN",
-    "API_REQUEST_ID": "د API غوښتنې پېژند",
-    "TELEGRAM_WEBHOOK": "د تلگرام Webhook لینک",
-    "TELEGRAM_BOT_TOKEN": "د تلگرام بوټ ټوکن",
-
-    "RECHARGE_ADJUST_TYPE": "د چارج قیمت ډول",
-    "SELLING_PRICE_ADJUST_TYPE": "د پلور قیمت ډول",
-    "RECHARGE_ADJUST_MODE": "د چارج قیمت حالت",
-    "SELLING_PRICE_ADJUST_MODE": "د پلور قیمت حالت",
-    "RECHARGE_ADJUST_VALUE": "د چارج قیمت ارزښت",
-    "SELLING_PRICE_ADJUST_VALUE": "د پلور قیمت ارزښت",
-    "SETARAGAN_ADMIN_BUYING_PRICE_PERCENTAGE": "د ستارګان ادمین د پېرلو قیمت سلنه",
-
-    "SELECT_TYPE": "ډول وټاکئ",
-    "SELECT_MODE": "حالت وټاکئ",
-    "DECREASE": "کمښت",
-    "INCREASE": "زیاتوالی",
-    "PERCENTAGE": "سلنه",
-    "FIXED": "ثابت",
-    "PERCENTAGE_NOTE": "د سلنې ارزښت دننه کړئ",
-    "SELLING_PRICE_PERCENTAGE_NOTE": "د پلور قیمت سلنه دننه کړئ",
-    "SETARAGAN_ADMIN_BUYING_PRICE_NOTE": "د ستارګان ادمین د پېرلو قیمت سلنه",
-
-    "RECHARGE_SETTINGS_DESCRIPTION": "د چارج تنظیماتو تشریح",
-    "RECHARGE_TYPE_DESC": "د چارج قیمت زیات یا کمول",
-    "RECHARGE_MODE_DESC": "سلنه یا ثابت مقدار",
-    "RECHARGE_VALUE_DESC": "د تنظیم ارزښت",
-    "SELLING_PRICE_ADJUST_DESC": "د پلور قیمت تنظیم",
-    "SETARAGAN_ADMIN_BUYING_PRICE_DESC": "د ادمین د پېرلو قیمت سلنه"
-  },
-
-  "SUPPORT_CONTACT": {
-    "TITLE": "د ملاتړ اړیکې",
-    "ADD_NEW": "نوې اړیکه اضافه کړئ",
-    "EDIT_CONTACT": "اړیکه سمول",
-    "DELETE_CONTACT": "اړیکه حذف کول",
-    "CONFIRM_DELETE": "ایا تاسې ډاډه یاست چې دا اړیکه حذف کړئ؟",
-    "NO_CONTACTS_FOUND": "د ملاتړ هېڅ اړیکه ونه موندل شوه",
-
-    "TITLE_FIELD": "سرلیک",
-    "DESCRIPTION": "تشریح",
+    "SUPPORT_CONTACT_ADD_FAILED": "د ملاتړ اړیکه اضافه کول ناکام شول",
+    "SUPPORT_CONTACT_UPDATE_FAILED": "د ملاتړ اړیکه سمول ناکام شول",
+    "SUPPORT_CONTACT_DELETE_FAILED": "د ملاتړ اړیکه حذف کول ناکام شول",
+    "FETCH_SUPPORT_CONTACTS_FAILED": "د ملاتړ اړیکو ترلاسه کول ناکام شول",
+    "TITLE": "سرلیک",
     "PHONE": "د تلیفون شمېره",
-    "IS_WHATSAPP": "واټساپ فعال",
-    "IS_PHONE": "تلیفوني اړیکه",
-    "TELEGRAM_LINK": "د تلگرام لینک",
-    "WEBSITE_LINK": "د وېب‌سایټ لینک",
-
-    "TABLE_COLUMNS": {
-      "TITLE": "سرلیک",
-      "DESCRIPTION": "تشریح",
-      "PHONE": "تلیفون",
-      "IS_WHATSAPP": "واټساپ",
-      "IS_PHONE": "تلیفون",
-      "STATUS": "حالت",
-      "ACTIONS": "عملیات"
-    }
-  },
-
-  "CURRENCY": {
-    "GENERAL": {
-      "SELECTCURRENCY": "اسعار وټاکئ",
-      "BASE_RATE": "اصلي نرخ"
-    }
-  },
-
-  "FORM": {
-    "GENERAL": {
-      "SUBMIT": "ثبت",
-      "ADD_CONTACT": "اړیکه اضافه کړئ",
-      "EDIT_CONTACT": "اړیکه سمول"
-    }
-  },
-
-  "APP": {
-    "GENERAL": {
-      "CANCEL": "لغوه"
-    }
-  },
-
-  "YES": "هو",
-  "NO": "نه",
-  "ACTIVE": "فعال",
-  "INACTIVE": "غیرفعال",
-  "": "حالت وټاکئ",
-  "STATUS": "حالت",
-
-  "SUPPORT_CONTACT_DELETED": "د ملاتړ اړیکه په بریالیتوب سره حذف شوه",
-  "SUPPORT_CONTACT_ADDED": "د ملاتړ اړیکه په بریالیتوب سره اضافه شوه",
-  "SUPPORT_CONTACT_UPDATED": "د ملاتړ اړیکه په بریالیتوب سره سم شوه",
-
-  "PAYMENTMETHOD.TABLE.COLUMN.BANKNAME": "د بانک نوم",
-  "PAYMENTMETHOD.TABLE.COLUMN.ACCOUNTHOLDER": "د حساب لرونکي نوم",
-  "PAYMENTMETHOD.TABLE.COLUMN.ACCOUNTNUMBER": "د حساب شمېره",
-  "PAYMENTMETHOD.TABLE.COLUMN.SHEBANUMBER": "د شیبا شمېره",
-  "PAYMENTMETHOD.TABLE.COLUMN.CARDNUMBER": "د کارت شمېره",
-  "PAYMENTMETHOD.TABLE.COLUMN.NOTES": "یادښتونه",
-
-  "PAYMENTMETHOD.FORM.INPUT.BANKNAME": "د بانک نوم",
-  "PAYMENTMETHOD.FORM.INPUT.ACCOUNTHOLDER": "د حساب لرونکي نوم",
-  "PAYMENTMETHOD.FORM.INPUT.ACCOUNTNUMBER": "د حساب شمېره",
-  "PAYMENTMETHOD.FORM.INPUT.SHEBANUMBER": "د شیبا شمېره",
-  "PAYMENTMETHOD.FORM.INPUT.CARDNUMBER": "د کارت شمېره",
-  "PAYMENTMETHOD.FORM.INPUT.NOTES": "یادښتونه",
-  
+    "WHATSAPP": "واټساپ",
+    "TELEGRAM": "تلگرام",
+    "WEBSITE": "وېب‌سایټ",
+    "APP_SETTINGS": {
+        "APP_SETTINGS": "د اپلیکیشن تنظیمات",
+        "EDIT_SETTINGS": "تنظیمات سمول",
+        "GENERAL": "عمومي",
+        "CONTACT_INFO": "د اړیکې معلومات",
+        "BRANDING": "برانډینګ",
+        "LIMITS": "محدودیتونه",
+        "INTEGRATION": "یوځای کېدل",
+        "RECHARGE": "د چارج تنظیمات",
+        "SUPPORT_CONTACTS": "د ملاتړ اړیکې",
+        "APP_NAME": "د اپلیکیشن نوم",
+        "APP_SLOGAN": "د اپلیکیشن شعار",
+        "DEFAULT_CURRENCY": "اصلي اسعار",
+        "EXCHANGE_RATE": "د تبادلې نرخ (ډالر ته افغانۍ)",
+        "WEBSITE_URL": "د وېب‌سایټ لینک",
+        "FEATURES": "ځانګړتیاوې",
+        "INSTANT_CONFIRM": "فوري تایید",
+        "MAINTENANCE_MODE": "د ترمیم حالت",
+        "ALLOW_REGISTRATIONS": "نوي ثبتونه اجازه لري",
+        "APP_NAME_EN": "د اپلیکیشن نوم (انګلیسي)",
+        "APP_NAME_FA": "د اپلیکیشن نوم (فارسي)",
+        "APP_NAME_PS": "د اپلیکیشن نوم (پښتو)",
+        "APP_SLOGAN_EN": "شعار (انګلیسي)",
+        "APP_SLOGAN_FA": "شعار (فارسي)",
+        "APP_SLOGAN_PS": "شعار (پښتو)",
+        "SUPPORT_PHONE": "د ملاتړ تلیفون",
+        "SUPPORT_EMAIL": "د ملاتړ ایمیل",
+        "SUPPORT_WHATSAPP": "د ملاتړ واټساپ",
+        "ALTERNATIVE_PHONE": "بدیل تلیفون",
+        "ALTERNATIVE_WHATSAPP": "بدیل واټساپ",
+        "TELEGRAM_USERNAME": "د تلگرام کارن نوم",
+        "TELEGRAM_URL": "د تلگرام لینک",
+        "FACEBOOK_URL": "د فیسبوک پاڼې لینک",
+        "INSTAGRAM_HANDLE": "د انسټاګرام کارن نوم",
+        "INSTAGRAM_URL": "د انسټاګرام لینک",
+        "TWITTER_URL": "د ټویټر لینک",
+        "TIKTOK_URL": "د ټیک ټاک لینک",
+        "YOUTUBE_URL": "د یوټیوب لینک",
+        "PRIMARY_COLOR": "اصلي رنګ",
+        "PRIMARY_FONT_COLOR": "د فونټ اصلي رنګ",
+        "SECONDARY_COLOR": "ثانوي رنګ",
+        "SECONDARY_FONT_COLOR": "د فونټ ثانوي رنګ",
+        "MAX_ORDERS_PER_DAY": "په ورځ کې اعظمي فرمایشونه",
+        "MIN_TOPUP_AMOUNT": "لږ تر لږه د چارج اندازه",
+        "MAX_TOPUP_AMOUNT": "اعظمي د چارج اندازه",
+        "API_BASE_URL": "د API اصلي لینک",
+        "API_USERNAME": "د API کارن نوم",
+        "API_AUTHKEY": "د API تصدیق کیلي",
+        "API_MSISDN": "د API MSISDN",
+        "API_REQUEST_ID": "د API غوښتنې پېژند",
+        "TELEGRAM_WEBHOOK": "د تلگرام Webhook لینک",
+        "TELEGRAM_BOT_TOKEN": "د تلگرام بوټ ټوکن",
+        "RECHARGE_ADJUST_TYPE": "د چارج قیمت ډول",
+        "SELLING_PRICE_ADJUST_TYPE": "د پلور قیمت ډول",
+        "RECHARGE_ADJUST_MODE": "د چارج قیمت حالت",
+        "SELLING_PRICE_ADJUST_MODE": "د پلور قیمت حالت",
+        "RECHARGE_ADJUST_VALUE": "د چارج قیمت ارزښت",
+        "SELLING_PRICE_ADJUST_VALUE": "د پلور قیمت ارزښت",
+        "SETARAGAN_ADMIN_BUYING_PRICE_PERCENTAGE": "د ستارګان ادمین د پېرلو قیمت سلنه",
+        "SELECT_TYPE": "ډول وټاکئ",
+        "SELECT_MODE": "حالت وټاکئ",
+        "DECREASE": "کمښت",
+        "INCREASE": "زیاتوالی",
+        "PERCENTAGE": "سلنه",
+        "FIXED": "ثابت",
+        "PERCENTAGE_NOTE": "د سلنې ارزښت دننه کړئ",
+        "SELLING_PRICE_PERCENTAGE_NOTE": "د پلور قیمت سلنه دننه کړئ",
+        "SETARAGAN_ADMIN_BUYING_PRICE_NOTE": "د ستارګان ادمین د پېرلو قیمت سلنه",
+        "RECHARGE_SETTINGS_DESCRIPTION": "د چارج تنظیماتو تشریح",
+        "RECHARGE_TYPE_DESC": "د چارج قیمت زیات یا کمول",
+        "RECHARGE_MODE_DESC": "سلنه یا ثابت مقدار",
+        "RECHARGE_VALUE_DESC": "د تنظیم ارزښت",
+        "SELLING_PRICE_ADJUST_DESC": "د پلور قیمت تنظیم",
+        "SETARAGAN_ADMIN_BUYING_PRICE_DESC": "د ادمین د پېرلو قیمت سلنه",
+        "CUSTOM_RECHARGE_API_PROVIDER": "د ګمرکي ریچارج API چمتو کوونکی",
+  "SELECT_RECHARGE_PROVIDER": "د ریچارج چمتو کوونکی وټاکئ",
+  "CUSTOM_RECHARGE_API_PROVIDER_DESC": "د ګمرکي ریچارج عملیاتو لپاره د API چمتو کوونکی وټاکئ"
+    },
+    "SUPPORT_CONTACT": {
+        "TITLE": "د ملاتړ اړیکې",
+        "ADD_NEW": "نوې اړیکه اضافه کړئ",
+        "EDIT_CONTACT": "اړیکه سمول",
+        "DELETE_CONTACT": "اړیکه حذف کول",
+        "CONFIRM_DELETE": "ایا تاسې ډاډه یاست چې دا اړیکه حذف کړئ؟",
+        "NO_CONTACTS_FOUND": "د ملاتړ هېڅ اړیکه ونه موندل شوه",
+        "TITLE_FIELD": "سرلیک",
+        "DESCRIPTION": "تشریح",
+        "PHONE": "د تلیفون شمېره",
+        "IS_WHATSAPP": "واټساپ فعال",
+        "IS_PHONE": "تلیفوني اړیکه",
+        "TELEGRAM_LINK": "د تلگرام لینک",
+        "WEBSITE_LINK": "د وېب‌سایټ لینک",
+        "TABLE_COLUMNS": {
+            "TITLE": "سرلیک",
+            "DESCRIPTION": "تشریح",
+            "PHONE": "تلیفون",
+            "IS_WHATSAPP": "واټساپ",
+            "IS_PHONE": "تلیفون",
+            "STATUS": "حالت",
+            "ACTIONS": "عملیات"
+        }
+    },
+    "CURRENCY": {
+        "GENERAL": {
+            "SELECTCURRENCY": "اسعار وټاکئ",
+            "BASE_RATE": "اصلي نرخ"
+        }
+    },
+    "FORM": {
+        "GENERAL": {
+            "SUBMIT": "ثبت",
+            "ADD_CONTACT": "اړیکه اضافه کړئ",
+            "EDIT_CONTACT": "اړیکه سمول"
+        }
+    },
+    "APP": {
+        "GENERAL": {
+            "CANCEL": "لغوه"
+        }
+    },
+    "YES": "هو",
+    "NO": "نه",
+    "ACTIVE": "فعال",
+    "INACTIVE": "غیرفعال",
+    "": "حالت وټاکئ",
+    "STATUS": "حالت",
+    "SUPPORT_CONTACT_DELETED": "د ملاتړ اړیکه په بریالیتوب سره حذف شوه",
+    "SUPPORT_CONTACT_ADDED": "د ملاتړ اړیکه په بریالیتوب سره اضافه شوه",
+    "SUPPORT_CONTACT_UPDATED": "د ملاتړ اړیکه په بریالیتوب سره سم شوه",
+    "PAYMENTMETHOD.TABLE.COLUMN.BANKNAME": "د بانک نوم",
+    "PAYMENTMETHOD.TABLE.COLUMN.ACCOUNTHOLDER": "د حساب لرونکي نوم",
+    "PAYMENTMETHOD.TABLE.COLUMN.ACCOUNTNUMBER": "د حساب شمېره",
+    "PAYMENTMETHOD.TABLE.COLUMN.SHEBANUMBER": "د شیبا شمېره",
+    "PAYMENTMETHOD.TABLE.COLUMN.CARDNUMBER": "د کارت شمېره",
+    "PAYMENTMETHOD.TABLE.COLUMN.NOTES": "یادښتونه",
+    "PAYMENTMETHOD.FORM.INPUT.BANKNAME": "د بانک نوم",
+    "PAYMENTMETHOD.FORM.INPUT.ACCOUNTHOLDER": "د حساب لرونکي نوم",
+    "PAYMENTMETHOD.FORM.INPUT.ACCOUNTNUMBER": "د حساب شمېره",
+    "PAYMENTMETHOD.FORM.INPUT.SHEBANUMBER": "د شیبا شمېره",
+    "PAYMENTMETHOD.FORM.INPUT.CARDNUMBER": "د کارت شمېره",
+    "PAYMENTMETHOD.FORM.INPUT.NOTES": "یادښتونه",
     "CURRENCY.FORM.INPUT.IGNOREDIGITSCOUNT": "د نادیده اخیستل شوي رقمونو شمیر",
     "VALIDATION": {
         "VALIDATION_FAILED": "تایید ناکام شو"
@@ -1903,7 +1878,393 @@
     "WITHDRAW_REQUEST": "د برداشت غوښتنه",
     "WITHDRAW_REQUEST_UPDATED_SUCCESSFULLY": "د برداشت غوښتنه په بریالیتوب سره تازه شوه",
     "SELECT_RESELLER_FIRST": "لومړی یو بیا پلورونکی وټاکئ",
-    "CURRENCY_WILL_BE_AUTO_SELECTED": "اسعار به په اتومات ډول ټاکل شي"
+    "CURRENCY_WILL_BE_AUTO_SELECTED": "اسعار به په اتومات ډول ټاکل شي",
+    "MENU.WITHDRAWAL_REQUEST": "د پیسو د را اخستلو غوښتنه",
+    "PROVIDER.CAPABILITIES.VOICE_BUNDLES": "د غږ بسته‌ګانې",
+    "PROVIDER.CAPABILITIES.SMS_BUNDLES": "د اس‌ام‌اس بسته‌ګانې",
+    "PROVIDERS": {
+        "VIEW": "لیدنه",
+        "ID": "پېژندنه",
+        "CODE": "کوډ",
+        "HAS_CREDENTIALS": "اعتبارنامه لري",
+        "ACCOUNT_INFO": "د حساب معلومات"
+    },
+    "ACCOUNT_INFO": {
+        "BALANCE": "د حساب پاتې شونې",
+        "CURRENCY": "د پیسو واحد",
+        "LAST_UPDATED": "وروستی تازه کول"
+    },
+    "USER_INFO": "د کارن معلومات",
+    "USER": {
+        "UID": "د کارن پېژندنه",
+        "NAME": "نوم",
+        "BALANCE": "د کارن پاتې شونې",
+        "LANGUAGE": "ژبه"
+    },
+    "RECENT_TRANSACTIONS": "وروستي معاملې",
+    "TRANSACTION": {
+        "ID": "پېژندنه",
+        "DESCRIPTION": "توضیحات",
+        "PHONE": "تلیفون",
+        "TYPE": "ډول",
+        "AMOUNT": "مبلغ",
+        "DATE": "نېټه",
+        "TYPE": {
+            "RECHARGE": "ریچارځ",
+            "BALANCE": "پاتې شونې"
+        }
+    },
+    "TRANSACTION_SUMMARY": "د معاملو لنډیز",
+    "TOTAL_TRANSACTIONS": "ټولې معاملې",
+    "TOTAL_RECHARGE_AMOUNT": "د ریچارځ ټول مبلغ",
+    "TOTAL_BALANCE_ADDED": "پاتې شونو ته اضافه شوی ټول",
+    "QUICK_ACTIONS": "چټک عملونه",
+    "ADD_BALANCE": "پاتې شونې اضافه کړئ",
+    "MAKE_RECHARGE": "ریچارځ وکړئ",
+    "VIEW_DETAILED_REPORT": "تفصیلي راپور وګورئ",
+    "EXPORT_DATA": "ډاټا صادر کړئ",
+    "GO_BACK": "بیرته ستون",
+    "REFRESH": "تازه کول",
+    "YES": "هو",
+    "NO": "نه",
+    "NO_TRANSACTIONS_FOUND": "هیڅ معامله ونه موندل شوه",
+    "LAST_UPDATED": "وروستی تازه کول",
+    "PROVIDER_INFO": "د عرضه کوونکي معلومات",
+
+  "API_KEYS": "د API کیلي",
+  "API_KEY": "د API کیلي",
+  "CREATE_API_KEY": "د API کیلي جوړول",
+  "EDIT_API_KEY": "د API کیلي سمول",
+  "DELETE_API_KEY": "د API کیلي ړنګول",
+  "API_KEY_DETAILS": "د API کیلي توضیحات",
+  "API_KEY_NAME": "د API کیلي نوم",
+  "API_KEY_VALUE": "د API کیلي ارزښت",
+  "API_KEY_SECRET": "د API کیلي راز",
+  "API_KEY_COPIED": "د API کیلي کلپ بورډ ته کاپي شوه",
+  "API_KEY_REGENERATED": "د API کیلي په بریالیتوب سره بیا جوړه شوه",
+  "API_KEY_REGENERATE": "د API کیلي بیا جوړول",
+  "API_KEY_REGENERATE_CONFIRM": "ایا تاسو ډاډه یاست چې غواړئ دا د API کیلي بیا جوړه کړئ؟ زوړ کیلي به سمدلاسه باطله شي.",
+
+  "API_KEY_CREATED": "د API کیلي په بریالیتوب سره جوړه شوه",
+  "API_KEY_CREATE_FAILED": "د API کیلي جوړول ناکام شول",
+  "API_KEY_UPDATED": "د API کیلي په بریالیتوب سره تازه شوه",
+  "API_KEY_UPDATE_FAILED": "د API کیلي تازه کول ناکام شول",
+  "API_KEY_DELETED": "د API کیلي په بریالیتوب سره ړنګه شوه",
+  "API_KEY_DELETE_FAILED": "د API کیلي ړنګول ناکام شول",
+  "API_KEY_DELETE_CONFIRM": "ایا تاسو ډاډه یاست چې غواړئ دا د API کیلي ړنګه کړئ؟ دا عمل بیرته نه شي ګرځول کیدی.",
+
+  "API_KEY_ACTIVATED": "د API کیلي په بریالیتوب سره فعاله شوه",
+  "API_KEY_DEACTIVATED": "د API کیلي په بریالیتوب سره غیرفعاله شوه",
+  "API_KEY_STATUS_TOGGLE_FAILED": "د API کیلي حالت بدلول ناکام شول",
+  "API_KEY_REGENERATE_FAILED": "د API کیلي بیا جوړول ناکام شول",
+  "FETCH_API_KEY_FAILED": "د API کیلي توضیحات راوړل ناکام شول",
+
+  "ALLOWED_IPS": "اجازه ورکړل شوي IP پتې",
+  "ALLOWED_IPS_HELP": "هغه IP پتې دننه کړئ چې د دې API کیلي کارولو اجازه لري. د ټولو IP پتو اجازه ورکولو لپاره له * څخه کار واخلئ.",
+  "ADD_IP": "IP اضافه کول",
+  "IP_ADDRESS": "IP پته",
+  "IP_ADDRESS_PLACEHOLDER": "بېلګه: 192.168.1.1 یا *",
+  "INVALID_IP": "د IP پته بڼه ناسمه ده",
+  "RATE_LIMIT": "د کچې محدودیت",
+  "RATE_LIMIT_HELP": "په یوه دقیقه کې د غوښتنو اعظمي شمېر",
+  "REQUESTS_PER_MINUTE": "په یوه دقیقه کې غوښتنې",
+  "EXPIRES_AT": "پای موده",
+  "EXPIRES_AT_HELP": "د پای مودې لپاره خالي پرېږدئ",
+  "LAST_USED_AT": "وروستی کارول",
+  "NEVER_USED": "هیڅکله نه دی کارول شوی",
+
+  "API_KEY_INFO": "د API کیلي معلومات",
+  "COPY_KEY": "د API کیلي کاپي کول",
+  "SHOW_KEY": "د API کیلي ښودل",
+  "HIDE_KEY": "د API کیلي پټول",
+  "WARNING_KEY_SHOWN": "ډاډ ترلاسه کړئ چې خپل د API کیلي اوس کاپي کړئ. تاسو به بیا د دې لیدو وړتیا ونه لرئ!",
+
+  "NO_API_KEYS": "د API کیلي ونه موندل شوې",
+  "CREATE_FIRST_API_KEY": "خپله لومړنۍ د API کیلي جوړه کړئ",
+  "API_KEY_CREATED_AT": "په جوړه شوه",
+  "API_KEY_UPDATED_AT": "په تازه شوه",
+
+  "RESELLER_INFO": "د بیا پلورونکي معلومات",
+  "RESELLER_EMAIL": "د بیا پلورونکي بریښنالیک",
+  "RESELLER_BALANCE": "د بیا پلورونکي پاتې پیسې",
+  "RESELLER_CODE": "د بیا پلورونکي کوډ",
+
+  "API_KEY_PERMISSIONS": "د API کیلي اجازې",
+  "PERMISSION_READ": "لوستل",
+  "PERMISSION_WRITE": "لیکل",
+  "PERMISSION_DELETE": "ړنګول",
+
+  "API_KEY_STATS": "د API کیلي احصایې",
+  "TOTAL_REQUESTS": "ټولې غوښتنې",
+  "REQUESTS_LAST_24H": "غوښتنې (وروستي ۲۴ ساعته)",
+  "LAST_REQUEST_AT": "وروستۍ غوښتنه",
+
+  "API_KEY_SECURITY": "امنیت",
+  "REGENERATE_WARNING": "ستاسو د API کیلي بیا جوړول به سمدلاسه زوړ کیلي باطل کړي. هره هغه غوښتنلیک چې زوړ کیلي کاروي به کار بند کړي.",
+  "DELETE_WARNING": "د دې API کیلي ړنګول به د هر هغه غوښتنلیک لپاره لاسرسی په دایمي توګه لرې کړي چې دا کاروي.",
+
+  "FILTER_BY_RESELLER": "د بیا پلورونکي له مخې فلټر کول",
+  "SEARCH_API_KEYS": "د API کیلي لټون...",
+
+  "EXPORT_API_KEYS": "د API کیلي صادرول",
+  "IMPORT_API_KEYS": "د API کیلي واردول",
+
+  "API_KEY_USAGE": "د API کیلي کارول",
+  "API_KEY_DOCUMENTATION": "د API کیلي اسناد",
+  "VIEW_DOCS": "اسناد لیدل",
+
+  "RATE_LIMIT_EXCEEDED": "د کچې محدودیت څخه تېر شوی",
+  "IP_NOT_ALLOWED": "IP پته اجازه نلري",
+  "API_KEY_EXPIRED": "د API کیلي پای موده تېره شوې ده",
+  "API_KEY_INACTIVE": "د API کیلي غیرفعاله ده",
+  "INVALID_API_KEY": "د API کیلي ناسمه ده",
+
+  "LAST_USED": "وروستی کارول",
+  "EXPIRED": "پای موده تېره شوې",
+  "NOT_EXPIRED": "پای موده نه ده تېره شوې",
+  "EXPIRATION": "پای موده",
+  "CREATED_AT": "په جوړه شوه",
+  "PLEASE_SELECT_RESELLER": "مهرباني وکړئ یو بیا پلورونکی وټاکئ",
+  "FILTER_BY_EXPIRATION": "د پای مودې له مخې فلټر کول",
+  "ALL": "ټول",
+  "PLEASE_ENTER_API_KEY_NAME": "مهرباني وکړئ د API کیلي نوم دننه کړئ",
+  "SUBMIT": "سپارل",
+  "REGENERATE": "بیا جوړول",
+  "NEVER": "هیڅکله",
+  "UNKNOWN": "نامعلوم",
+  "CONFIRM_DELETE": "د ړنګولو تایید",
+  "CONFIRM_REGENERATE": "د بیا جوړولو تایید",
+
+  "DATA_TABLE": {
+    "TABLE": {
+      "PAGINATOR": {
+        "SHOWING": "د {first} څخه تر {last} پورې د {totalRecords} داخلې ښودل کیږي"
+      },
+      "NO_DATA": "هیڅ معلومات ونه موندل شول"
+    }
+  },
+  "MENU.API_KEYS": "د API کیلي",
+  "CATEGORIES": "دسته‌بندی‌ها",
+  "SEARCH_CATEGORIES": "جستجوی دسته‌بندی‌ها...",
+  "SEARCH_CATEGORY": "جستجوی دسته‌بندی...",
+  "PRODUCTS": "محصولات",
+  "SEARCH_PRODUCTS": "جستجوی محصولات...",
+  "SEARCH_PRODUCT": "جستجوی محصول...",
+  "SELECT_PRODUCT": "انتخاب محصول...",
+
+
+
+  "APP_SETTINGS": {
+    "TELEGRAM": "ټیلیګرام",
+    "TELEGRAM_SETTINGS": "د ټیلیګرام تنظیمات",
+    "TELEGRAM_ENABLED": "د ټیلیګرام خبرتیاوې فعالې کړئ",
+    "TELEGRAM_SEND_PAYMENTS": "د تادیاتو خبرتیاوې واستوئ",
+    "TELEGRAM_PAYMENT_CHAT_IDS": "د تادیې چیټ ID",
+    "TELEGRAM_SEND_BALANCES": "د بیلانس خبرتیاوې واستوئ",
+    "TELEGRAM_BALANCE_CHAT_IDS": "د بیلانس چیټ ID",
+    "TELEGRAM_SEND_TRANSACTIONS": "د معاملاتو خبرتیاوې واستوئ",
+    "TELEGRAM_TRANSACTION_CHAT_IDS": "د معاملې چیټ ID",
+    "TELEGRAM_SEND_VOUCHERS": "د ووچر خبرتیاوې واستوئ",
+    "TELEGRAM_VOUCHER_CHAT_IDS": "د ووچر چیټ ID",
+    "SELECT_CHAT_IDS": "د ټیلیګرام چیټ انتخاب کړئ",
+    "TELEGRAM_SELECT_CHAT_HELP": "له لیست څخه د ټیلیګرام ګروپ چیټ ID انتخاب کړئ",
+    "AVAILABLE_TELEGRAM_CHAT_IDS": "موجود ټیلیګرام چیټ ID ګانې"
+  },
+
+  "VOUCHER": {
+    "TABLE": {
+      "CREATEVOUCHER": "ووچر جوړ کړئ",
+      "DELETE_SELECTED": "انتخاب شوي حذف کړئ",
+      "COLUMN": {
+        "CODE": "د ووچر کوډ",
+        "BUNDLE": "بنډل",
+        "COMPANY": "شرکت",
+        "PROVIDER": "چمتو کوونکی",
+        "STATUS": "حالت",
+        "EXPIRES": "د ختمېدو نېټه",
+        "NOTES": "یادښتونه"
+      }
+    },
+    "FORM": {
+      "CODE": "د ووچر کوډ",
+      "BUNDLE": "بنډل",
+      "PROVIDER": "چمتو کوونکی",
+      "EXPIRES_AT": "د ختمېدو نېټه",
+      "NOTES": "یادښتونه",
+      "METADATA": "میټاډیټا",
+      "ENTER_CODE": "د ووچر کوډ داخل کړئ",
+      "ENTER_PROVIDER": "د چمتو کوونکي نوم داخل کړئ",
+      "SELECT_EXPIRY": "د ختمېدو نېټه انتخاب کړئ",
+      "ENTER_NOTES": "یادښت داخل کړئ",
+      "ENTER_METADATA_JSON": "میټاډیټا د JSON په ډول داخل کړئ",
+      "METADATA_HELP": "معتبر JSON داخل کړئ",
+      "SELECT_BUNDLE": "یو بنډل انتخاب کړئ",
+      "SELECT_STATUS": "حالت انتخاب کړئ"
+    },
+    "STATUS": {
+      "ALL": "ټول",
+      "AVAILABLE": "موجود",
+      "USED": "استعمال شوی",
+      "RESERVED": "ساتل شوی",
+      "EXPIRED": "ختم شوی"
+    },
+    "STATS": {
+      "TOTAL": "ټول",
+      "AVAILABLE": "موجود",
+      "USED": "استعمال شوی",
+      "RESERVED": "ساتل شوی",
+      "EXPIRED": "ختم شوی"
+    },
+    "FILTER": {
+      "STATUS": "حالت",
+      "BUNDLE": "بنډل",
+      "PROVIDER": "چمتو کوونکی",
+      "SELECT_STATUS": "حالت انتخاب کړئ",
+      "SELECT_BUNDLE": "بنډل انتخاب کړئ",
+      "ENTER_PROVIDER": "د چمتو کوونکي نوم داخل کړئ"
+    },
+    "BULK_IMPORT": "ډله‌ییز واردول",
+    "ADD_TO_LIST": "لیست ته اضافه کړئ",
+    "IMPORT": "واردول",
+    "IMPORT_SUMMARY": "د واردولو لنډیز",
+    "TOTAL": "ټول",
+    "IMPORTED": "وارد شوی",
+    "FAILED": "ناکام",
+    "ERRORS": "خطاګانې",
+    "NO_VOUCHERS_ADDED": "تر اوسه کوم ووچر اضافه شوی نه دی",
+    "VOUCHERS_LIST": "د ووچرونو لیست",
+    "NO_NOTES": "هیڅ یادښت نشته",
+    "CREATE": "ووچر جوړ کړئ",
+    "EDIT": "ووچر سم کړئ"
+  },
+
+
+  "COMPANY_CODE": "د شرکت کوډ",
+  "COMPANY_CODE_PLACEHOLDER": "د شرکت کوډ دننه کړئ. بېلګه: AWCC، روشن",
+
+  "APP_SETTINGS": {
+    "APP_SETTINGS": "د اپلیکیشن ترتیبات",
+    "EDIT_SETTINGS": "ترتیبات سمول",
+    "GENERAL": "عمومي",
+    "CONTACT_INFO": "د اړیکو معلومات",
+    "BRANDING": "برانډنګ",
+    "LIMITS": "حدود",
+    "INTEGRATION": "یوځای کیدل",
+    "RECHARGE": "د چارج تنظیمات",
+    "SUPPORT_CONTACTS": "د ملاتړ اړیکې",
+    "TELEGRAM": "ټیلیګرام",
+    "APP_NAME": "د اپلیکیشن نوم",
+    "APP_SLOGAN": "د اپلیکیشن شعار",
+    "DEFAULT_CURRENCY": "ډیفالټ اسعار",
+    "EXCHANGE_RATE": "د تبادلې نرخ (ډالر ته افغانۍ)",
+    "WEBSITE_URL": "د ویب پاڼې لینک",
+    "FEATURES": "ځانګړتیاوې",
+    "INSTANT_CONFIRM": "سمدستي امر تایید",
+    "MAINTENANCE_MODE": "د ساتنې حالت",
+    "ALLOW_REGISTRATIONS": "نوې ثبتونو ته اجازه ورکول",
+    "APP_NAME_EN": "د اپلیکیشن نوم (انګلیسي)",
+    "APP_NAME_FA": "د اپلیکیشن نوم (فارسي)",
+    "APP_NAME_PS": "د اپلیکیشن نوم (پښتو)",
+    "APP_SLOGAN_EN": "د اپلیکیشن شعار (انګلیسي)",
+    "APP_SLOGAN_FA": "د اپلیکیشن شعار (فارسي)",
+    "APP_SLOGAN_PS": "د اپلیکیشن شعار (پښتو)",
+    "SUPPORT_PHONE": "د ملاتړ تلیفون",
+    "SUPPORT_EMAIL": "د ملاتړ برېښنالیک",
+    "SUPPORT_WHATSAPP": "د ملاتړ واټس اپ",
+    "ALTERNATIVE_PHONE": "بدیل تلیفون",
+    "ALTERNATIVE_WHATSAPP": "بدیل واټس اپ",
+    "TELEGRAM_USERNAME": "د ټیلیګرام کارن نوم",
+    "TELEGRAM_URL": "د ټیلیګرام لینک",
+    "FACEBOOK_URL": "د فیسبوک پاڼې لینک",
+    "INSTAGRAM_HANDLE": "انسټاګرام هینډل",
+    "INSTAGRAM_URL": "د انسټاګرام لینک",
+    "TWITTER_URL": "د ټویټر لینک",
+    "TIKTOK_URL": "د ټیک ټاک لینک",
+    "YOUTUBE_URL": "د یوټیوب لینک",
+    "PRIMARY_COLOR": "لومړنی رنګ",
+    "PRIMARY_FONT_COLOR": "لومړنی د توري رنګ",
+    "SECONDARY_COLOR": "دوهم رنګ",
+    "SECONDARY_FONT_COLOR": "دوهم د توري رنګ",
+    "MAX_ORDERS_PER_DAY": "په ورځ کې د امرونو اعظمي حد",
+    "MIN_TOPUP_AMOUNT": "د چارج لږ تر لږه اندازه",
+    "MAX_TOPUP_AMOUNT": "د چارج ډیر تر ډیره اندازه",
+    "API_BASE_URL": "د API بنسټیز لینک",
+    "API_USERNAME": "د API کارن نوم",
+    "API_AUTHKEY": "د API تصدیق کوډ",
+    "API_MSISDN": "د API MSISDN",
+    "API_REQUEST_ID": "د API غوښتنې کوډ",
+    "TELEGRAM_WEBHOOK": "د ټیلیګرام ویب هوک لینک",
+    "TELEGRAM_BOT_TOKEN": "د ټیلیګرام بوټ ټوکن",
+    "RECHARGE_ADJUST_TYPE": "د چارج قیمت تنظیم ډول",
+    "RECHARGE_ADJUST_MODE": "د چارج قیمت تنظیم حالت",
+    "RECHARGE_ADJUST_VALUE": "د چارج قیمت تنظیم ارزښت",
+    "SELLING_PRICE_ADJUST_TYPE": "د پلور قیمت تنظیم ډول",
+    "SELLING_PRICE_ADJUST_MODE": "د پلور قیمت تنظیم حالت",
+    "SELLING_PRICE_ADJUST_VALUE": "د پلور قیمت تنظیم ارزښت",
+    "SETARAGAN_ADMIN_BUYING_PRICE_PERCENTAGE": "ستارګان د مدیر پیرود قیمت سلنه",
+    "CUSTOM_RECHARGE_API_PROVIDER": "دودیز چارج API چمتو کوونکی",
+    "CUSTOM_RECHARGE_API_PROVIDER_DESC": "د چارج عملیاتو لپاره د API چمتو کوونکی وټاکئ",
+    "SELECT_TYPE": "ډول وټاکئ",
+    "SELECT_MODE": "حالت وټاکئ",
+    "DECREASE": "کمول",
+    "INCREASE": "زیاتول",
+    "PERCENTAGE": "سلنه",
+    "FIXED": "ثابت",
+    "PERCENTAGE_NOTE": "د سلنه ارزښت دننه کړئ (بېلګه: 10 د 10٪ لپاره)",
+    "SELLING_PRICE_PERCENTAGE_NOTE": "د پلور قیمت تنظیم لپاره د سلنه ارزښت دننه کړئ",
+    "SETARAGAN_ADMIN_BUYING_PRICE_NOTE": "د ستارګان د مدیر پیرود قیمت سلنه",
+    "RECHARGE_SETTINGS_DESCRIPTION": "د چارج تنظیماتو تشریح",
+    "RECHARGE_TYPE_DESC": "د تنظیم ډول: ایا د چارج قیمت زیاتول یا کمول",
+    "RECHARGE_MODE_DESC": "د تنظیم حالت: ایا د سلنه یا ثابت مقدار له مخې تنظیمول",
+    "RECHARGE_VALUE_DESC": "د تنظیم ارزښت: هغه ارزښت چې تنظیم کیږي (سلنه یا ثابت مقدار)",
+    "SELLING_PRICE_ADJUST_DESC": "د پلور قیمت تنظیم: د پیرودونکو ته ښودل شوی وروستی قیمت تنظیمول",
+    "SETARAGAN_ADMIN_BUYING_PRICE_DESC": "ستارګان د مدیر پیرود قیمت: د مدیر پیرود لپاره د اساسي قیمت سلنه",
+    "SELECT_RECHARGE_PROVIDER": "د چارج چمتو کوونکی وټاکئ",
+    "TELEGRAM_SETTINGS": "د ټیلیګرام تنظیمات",
+    "TELEGRAM_ENABLED": "د ټیلیګرام خبرتیاوې فعالول",
+    "TELEGRAM_SEND_PAYMENTS": "د پیسو خبرتیاوې لیږل",
+    "TELEGRAM_PAYMENT_CHAT_IDS": "د پیسو خبرتیاوې چت کوډونه",
+    "TELEGRAM_SEND_BALANCES": "د بیلانس خبرتیاوې لیږل",
+    "TELEGRAM_BALANCE_CHAT_IDS": "د بیلانس خبرتیاوې چت کوډونه",
+    "TELEGRAM_SEND_TRANSACTIONS": "د معاملو خبرتیاوې لیږل",
+    "TELEGRAM_TRANSACTION_CHAT_IDS": "د معاملو خبرتیاوې چت کوډونه",
+    "TELEGRAM_SEND_VOUCHERS": "د واوچر خبرتیاوې لیږل",
+    "TELEGRAM_VOUCHER_CHAT_IDS": "د واوچر خبرتیاوې چت کوډونه",
+    "SELECT_CHAT_IDS": "د ټیلیګرام چت کوډونه وټاکئ",
+    "TELEGRAM_SELECT_CHAT_HELP": "له لیست څخه د ټیلیګرام ګروپ چت کوډ وټاکئ",
+    "AVAILABLE_TELEGRAM_CHAT_IDS": "د موجوده ټیلیګرام چت کوډونه"
+  },
+  "SUPPORT_CONTACT": {
+    "TITLE": "د ملاتړ اړیکې",
+    "ADD_NEW": "نوې اړیکه زیاتول",
+    "EDIT_CONTACT": "اړیکه سمول",
+    "DELETE_CONTACT": "اړیکه حذف کول",
+    "CONFIRM_DELETE": "ایا تاسو ډاډه یاست چې غواړئ اړیکه حذف کړئ",
+    "NO_CONTACTS_FOUND": "د ملاتړ اړیکې ونه موندل شوې",
+    "DESCRIPTION": "تشریح",
+    "PHONE": "تلیفون شمېره",
+    "IS_WHATSAPP": "واټس اپ دی",
+    "IS_PHONE": "تلیفون دی",
+    "TELEGRAM_LINK": "د ټیلیګرام لینک",
+    "WEBSITE_LINK": "د ویب پاڼې لینک"
+  },
+  "CURRENCY": {
+    "GENERAL": {
+      "SELECTCURRENCY": "اسعار وټاکئ",
+      "BASE_RATE": "اساسي نرخ"
+    }
+  },
+  "FORM": {
+    "GENERAL": {
+      "SUBMIT": "سپارل"
+    }
+  },
+  "APP": {
+    "GENERAL": {
+      "CANCEL": "لغوه کول"
+    }
+  }
+
 
 
 }
